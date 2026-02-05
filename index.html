@@ -1,9 +1,6 @@
 <!DOCTYPE html>
 <html lang="rw">
 <head>
-    <img src="logo.png.jpg" alt="My Logo" width="150">
-
-
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title data-translate="app_name_user">INDIRIMBO ZA GATOLIKA</title>
@@ -2762,7 +2759,10 @@
             }, 1500);
         }
         
+        // ===== SHOW/HIDE CONTACT FORM =====
         function showContactForm() {
+            console.log('showContactForm called');
+            
             if (currentUser && !currentUser.isGuest) {
                 document.getElementById('userEmail').value = currentUser.email;
                 validateContactEmail();
@@ -3284,8 +3284,4 @@
         window.onload = initApp;
     </script>
 </body>
-
 </html>
-
-
-
