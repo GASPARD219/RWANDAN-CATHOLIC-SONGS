@@ -1,0 +1,3090 @@
+<!DOCTYPE html>
+<html lang="rw">
+<head>
+    <meta charset="UTF-8">
+    <title data-translate="admin_dashboard">Admin Dashboard</title>
+    <style>
+        /* ===== GENERAL STYLES ===== */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            background: linear-gradient(135deg, #f5f5f5 0%, #e8e8e8 100%);
+            min-height: 100vh;
+        }
+        
+        /* ===== LANGUAGE SWITCHER ===== */
+        .language-switcher-container {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+        }
+        
+        .language-dropdown {
+            position: relative;
+            display: inline-block;
+        }
+        
+        .language-current {
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px solid white;
+            border-radius: 25px;
+            padding: 8px 15px;
+            color: white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+        
+        .language-current:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
+        
+        .language-flag {
+            font-size: 18px;
+        }
+        
+        .language-name {
+            font-size: 12px;
+        }
+        
+        .language-arrow {
+            font-size: 10px;
+            margin-left: 5px;
+        }
+        
+        .language-options {
+            display: none;
+            position: absolute;
+            top: 100%;
+            right: 0;
+            background: white;
+            border-radius: 8px;
+            min-width: 150px;
+            margin-top: 5px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            z-index: 1001;
+            overflow: hidden;
+        }
+        
+        .language-options button {
+            width: 100%;
+            padding: 10px 15px;
+            border: none;
+            background: none;
+            text-align: left;
+            cursor: pointer;
+            color: #333;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 13px;
+            transition: all 0.2s;
+        }
+        
+        .language-options button:hover {
+            background: #f0f0f0;
+            color: #4b0082;
+        }
+        
+        .language-options button.active {
+            background: #e8f4fd;
+            color: #4b0082;
+            font-weight: bold;
+        }
+        
+        /* Language notification */
+        .language-notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #4b0082;
+            color: white;
+            padding: 15px 25px;
+            border-radius: 10px;
+            z-index: 10000;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            animation: slideIn 0.3s ease;
+        }
+        
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        
+        @keyframes slideOut {
+            from { transform: translateX(0); opacity: 1; }
+            to { transform: translateX(100%); opacity: 0; }
+        }
+        
+        /* ===== HEADER ===== */
+        .admin-header {
+            background: linear-gradient(135deg, #4b0082, #6a5acd);
+            color: white;
+            padding: 25px 20px;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            position: relative;
+        }
+        
+        .admin-header h2 {
+            margin: 0;
+            font-size: 2.5em;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .admin-actions {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .admin-actions button {
+            padding: 12px 25px;
+            background: #4b0082;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .admin-actions button:hover {
+            background: #5a0d9c;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+        
+        .admin-actions button.logout {
+            background: #6c757d;
+        }
+        
+        .admin-actions button.logout:hover {
+            background: #5a6268;
+        }
+        
+        /* ===== TABS ===== */
+        .admin-tabs {
+            display: flex;
+            background: linear-gradient(135deg, #6a5acd, #9370db);
+            margin: 0;
+            border-radius: 0;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .tab-btn {
+            flex: 1;
+            padding: 18px;
+            background: rgba(255,255,255,0.2);
+            border: none;
+            color: white;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            transition: all 0.3s;
+            border-bottom: 3px solid transparent;
+        }
+        
+        .tab-btn:hover {
+            background: rgba(255,255,255,0.3);
+        }
+        
+        .tab-btn.active {
+            background: #4b0082;
+            border-bottom: 3px solid white;
+        }
+        
+        /* ===== TAB CONTENT ===== */
+        .tab-content {
+            display: none;
+            background: white;
+            margin: 0;
+            padding: 30px;
+            min-height: 500px;
+            animation: fadeIn 0.5s ease;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        /* ===== UPLOAD TAB ===== */
+        .upload-info {
+            background: #e8f4fd;
+            border-left: 4px solid #4b0082;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 25px;
+        }
+        
+        .upload-options {
+            display: flex;
+            gap: 20px;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+        
+        .upload-option {
+            flex: 1;
+            min-width: 200px;
+            padding: 20px;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: center;
+        }
+        
+        .upload-option:hover {
+            border-color: #4b0082;
+            background: #f8f9fa;
+        }
+        
+        .upload-option.active {
+            border-color: #4b0082;
+            background: #f0e6ff;
+        }
+        
+        .upload-option-icon {
+            font-size: 40px;
+            margin-bottom: 10px;
+        }
+        
+        /* Form styles */
+        .upload-form-group {
+            margin: 20px 0;
+        }
+        
+        .upload-form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #4b0082;
+            font-size: 16px;
+        }
+        
+        .upload-form-group select,
+        .upload-form-group input[type="file"] {
+            width: 100%;
+            max-width: 600px;
+            padding: 15px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+            background: white;
+        }
+        
+        .upload-form-group input[type="file"][multiple] {
+            padding: 25px;
+            border: 3px dashed #4b0082;
+            background: #f8f9fa;
+        }
+        
+        .upload-form-group select:focus,
+        .upload-form-group input[type="file"]:focus {
+            border-color: #4b0082;
+            outline: none;
+        }
+        
+        /* Upload buttons */
+        .upload-buttons {
+            display: flex;
+            gap: 15px;
+            margin: 25px 0;
+            flex-wrap: wrap;
+        }
+        
+        .upload-btn {
+            padding: 15px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .upload-btn.primary {
+            background: #4b0082;
+            color: white;
+        }
+        
+        .upload-btn.secondary {
+            background: #6c757d;
+            color: white;
+        }
+        
+        .upload-btn.danger {
+            background: #dc3545;
+            color: white;
+        }
+        
+        .upload-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .upload-btn:not(:disabled):hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        
+        /* Files preview */
+        .files-preview-container {
+            display: none;
+            margin: 20px 0;
+            max-height: 300px;
+            overflow-y: auto;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            padding: 15px;
+        }
+        
+        .files-preview-container.show {
+            display: block;
+        }
+        
+        .file-preview-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px;
+            margin: 8px 0;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border-left: 4px solid #4b0082;
+        }
+        
+        .file-preview-info {
+            flex: 1;
+        }
+        
+        .file-preview-name {
+            font-weight: bold;
+            color: #2c3e50;
+        }
+        
+        .file-preview-size {
+            font-size: 12px;
+            color: #6c757d;
+        }
+        
+        /* Progress bar */
+        .progress-container {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            border: 2px solid #4b0082;
+            display: none;
+        }
+        
+        .progress-container.show {
+            display: block;
+        }
+        
+        .progress-label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+        
+        .progress-bar {
+            height: 20px;
+            background: #e9ecef;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #4b0082, #6a5acd);
+            border-radius: 10px;
+            transition: width 0.3s ease;
+        }
+        
+        /* Batch progress */
+        .batch-progress-container {
+            display: none;
+            margin: 25px 0;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            border: 2px solid #4b0082;
+        }
+        
+        .batch-progress-container.show {
+            display: block;
+        }
+        
+        .batch-progress-stats {
+            display: flex;
+            gap: 20px;
+            margin: 15px 0;
+            flex-wrap: wrap;
+        }
+        
+        .batch-stat {
+            flex: 1;
+            min-width: 150px;
+            padding: 15px;
+            background: white;
+            border-radius: 8px;
+            text-align: center;
+            border: 1px solid #e9ecef;
+        }
+        
+        .batch-stat-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #4b0082;
+            display: block;
+        }
+        
+        .batch-stat-label {
+            font-size: 12px;
+            color: #6c757d;
+            text-transform: uppercase;
+        }
+        
+        /* Success messages */
+        .upload-success {
+            background: #d4edda;
+            color: #155724;
+            padding: 25px;
+            border-radius: 10px;
+            margin: 20px 0;
+            border: 2px solid #c3e6cb;
+            display: none;
+        }
+        
+        .upload-success.show {
+            display: block;
+        }
+        
+        .batch-upload-success {
+            background: #d4edda;
+            color: #155724;
+            padding: 25px;
+            border-radius: 10px;
+            margin: 20px 0;
+            border: 2px solid #c3e6cb;
+            display: none;
+        }
+        
+        .batch-upload-success.show {
+            display: block;
+        }
+        
+        .success-item {
+            padding: 8px;
+            margin: 5px 0;
+            background: #f8f9fa;
+            border-radius: 5px;
+            border-left: 3px solid #28a745;
+        }
+        
+        /* Status messages */
+        .status-message {
+            padding: 12px;
+            margin: 10px 0;
+            border-radius: 6px;
+            font-weight: bold;
+            display: none;
+        }
+        
+        .status-message.success {
+            background: #d4edda;
+            color: #155724;
+            border-left: 4px solid #28a745;
+            display: block;
+        }
+        
+        .status-message.error {
+            background: #f8d7da;
+            color: #721c24;
+            border-left: 4px solid #dc3545;
+            display: block;
+        }
+        
+        .status-message.warning {
+            background: #fff3cd;
+            color: #856404;
+            border-left: 4px solid #ffc107;
+            display: block;
+        }
+        
+        .status-message.info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border-left: 4px solid #17a2b8;
+            display: block;
+        }
+        
+        /* ===== MANAGE SONGS TAB ===== */
+        .search-admin {
+            display: flex;
+            gap: 15px;
+            margin: 25px 0;
+            padding: 20px;
+            background: white;
+            border-radius: 10px;
+            align-items: center;
+            flex-wrap: wrap;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .search-admin input {
+            flex: 2;
+            min-width: 250px;
+            padding: 15px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+        
+        .search-admin input:focus {
+            border-color: #4b0082;
+            outline: none;
+        }
+        
+        .search-admin select {
+            flex: 1;
+            min-width: 200px;
+            padding: 15px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            background: white;
+        }
+        
+        .search-admin button {
+            padding: 15px 25px;
+            background: #4b0082;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+        
+        .search-admin button:hover {
+            background: #5a0d9c;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+        
+        /* Songs list */
+        .songs-list-admin {
+            margin-top: 30px;
+        }
+        
+        .admin-section {
+            margin-bottom: 40px;
+            border: 2px solid #e9ecef;
+            border-radius: 15px;
+            padding: 25px;
+            background: white;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        
+        .admin-section h4 {
+            color: #4b0082;
+            margin-top: 0;
+            padding-bottom: 20px;
+            border-bottom: 3px solid #4b0082;
+            font-size: 28px;
+            position: relative;
+        }
+        
+        .admin-section h4::after {
+            content: '';
+            position: absolute;
+            bottom: -3px;
+            left: 0;
+            width: 100px;
+            height: 3px;
+            background: #6a5acd;
+        }
+        
+        .count-badge {
+            background: #4b0082;
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: bold;
+        }
+        
+        .admin-song-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 25px;
+            margin: 15px 0;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            border-left: 6px solid #4b0082;
+            transition: all 0.3s;
+        }
+        
+        .admin-song-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+            border-left-color: #6a5acd;
+        }
+        
+        .song-info {
+            flex: 1;
+        }
+        
+        .song-info strong {
+            color: #333;
+            font-size: 22px;
+            display: block;
+            margin-bottom: 12px;
+        }
+        
+        .song-details {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+        
+        .song-details span {
+            background: #e9ecef;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 13px;
+            color: #495057;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .file-info { background: #e3f2fd; color: #1565c0; }
+        .section-info { background: #f3e5f5; color: #7b1fa2; }
+        .date-info { background: #e8f5e8; color: #2e7d32; }
+        .size-info { background: #fff3e0; color: #ef6c00; }
+        .downloads-info { background: #ffe6e6; color: #dc3545; }
+        
+        /* Action buttons */
+        .song-actions {
+            display: flex;
+            gap: 15px;
+        }
+        
+        .action-btn {
+            padding: 12px 25px;
+            font-size: 15px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            min-width: 100px;
+            justify-content: center;
+        }
+        
+        .preview-btn {
+            background: linear-gradient(135deg, #17a2b8, #138496);
+            color: white;
+        }
+        
+        .delete-btn {
+            background: linear-gradient(135deg, #dc3545, #c82333);
+            color: white;
+        }
+        
+        .action-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+        
+        /* No songs message */
+        .no-songs {
+            text-align: center;
+            color: #666;
+            font-style: italic;
+            padding: 60px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            border: 2px dashed #dee2e6;
+            font-size: 18px;
+        }
+        
+        /* ===== STATUS TAB ===== */
+        .reports-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 25px;
+            margin: 30px 0;
+        }
+        
+        .report-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            transition: transform 0.3s;
+        }
+        
+        .report-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .report-card h4 {
+            color: #4b0082;
+            margin-top: 0;
+            padding-bottom: 20px;
+            border-bottom: 3px solid #4b0082;
+            font-size: 22px;
+            position: relative;
+        }
+        
+        .report-card h4::after {
+            content: '';
+            position: absolute;
+            bottom: -3px;
+            left: 0;
+            width: 80px;
+            height: 3px;
+            background: #6a5acd;
+        }
+        
+        /* Stats items */
+        .stats-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 18px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            margin: 12px 0;
+            border-left: 4px solid #4b0082;
+            transition: all 0.3s;
+        }
+        
+        .stats-item:hover {
+            background: white;
+            transform: translateX(5px);
+        }
+        
+        .stats-item span {
+            color: #2c3e50;
+            font-weight: 500;
+            font-size: 16px;
+        }
+        
+        .stats-item strong {
+            color: #4b0082;
+            font-size: 24px;
+        }
+        
+        /* ===== NOTIFICATION ===== */
+        #notification {
+            display: none;
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #4b0082;
+            color: white;
+            padding: 15px 25px;
+            border-radius: 8px;
+            z-index: 10000;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            animation: slideIn 0.3s ease;
+        }
+        
+        /* ===== NOTIFICATION SETTINGS ===== */
+        .notification-settings {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            margin: 20px 0;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            border-left: 6px solid #4b0082;
+        }
+
+        .notification-settings h4 {
+            color: #4b0082;
+            margin-top: 0;
+            margin-bottom: 20px;
+            font-size: 22px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .email-settings {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .email-input-group {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .email-input-group input {
+            flex: 1;
+            min-width: 300px;
+            padding: 12px 15px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+        }
+
+        .email-input-group input:focus {
+            border-color: #4b0082;
+            outline: none;
+        }
+
+        .email-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .email-actions button {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .test-email-btn {
+            background: #17a2b8;
+            color: white;
+        }
+
+        .save-email-btn {
+            background: #28a745;
+            color: white;
+        }
+
+        .test-email-btn:hover {
+            background: #138496;
+        }
+
+        .save-email-btn:hover {
+            background: #218838;
+        }
+
+        .email-status {
+            margin-top: 15px;
+            padding: 10px 15px;
+            border-radius: 8px;
+            display: none;
+            font-size: 14px;
+        }
+
+        .email-status.success {
+            background: #d4edda;
+            color: #155724;
+            border-left: 4px solid #28a745;
+            display: block;
+        }
+
+        .email-status.error {
+            background: #f8d7da;
+            color: #721c24;
+            border-left: 4px solid #dc3545;
+            display: block;
+        }
+
+        .notification-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .stat-card {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            border: 2px solid #e9ecef;
+        }
+
+        .stat-value {
+            font-size: 28px;
+            font-weight: bold;
+            color: #4b0082;
+            display: block;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: #6c757d;
+            text-transform: uppercase;
+        }
+        
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 768px) {
+            .admin-header h2 {
+                font-size: 2em;
+            }
+            
+            .language-switcher-container {
+                top: 15px;
+                right: 15px;
+            }
+            
+            .language-current {
+                padding: 6px 12px;
+            }
+            
+            .language-name {
+                display: none;
+            }
+            
+            .admin-actions {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .admin-actions button {
+                width: 100%;
+                max-width: 300px;
+            }
+            
+            .admin-tabs {
+                flex-direction: column;
+            }
+            
+            .tab-btn {
+                width: 100%;
+                padding: 15px;
+            }
+            
+            .upload-options {
+                flex-direction: column;
+            }
+            
+            .upload-option {
+                width: 100%;
+            }
+            
+            .admin-song-item {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 20px;
+            }
+            
+            .song-actions {
+                width: 100%;
+                justify-content: flex-start;
+            }
+            
+            .action-btn {
+                min-width: auto;
+                flex: 1;
+            }
+            
+            .reports-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .search-admin {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .search-admin input,
+            .search-admin select {
+                width: 100%;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .language-switcher-container {
+                top: 10px;
+                right: 10px;
+            }
+            
+            .language-current {
+                padding: 5px 10px;
+                font-size: 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Admin Header -->
+    <div class="admin-header">
+        <div class="language-switcher-container">
+            <div id="languageSwitcher"></div>
+        </div>
+        
+        <h2 data-translate="admin_dashboard">Admin Dashboard</h2>
+        <div class="admin-actions">
+            <button onclick="refreshDashboard()">
+                <span>🔄</span> <span data-translate="refresh">Refresh</span>
+            </button>
+            <button onclick="checkUserView()">
+                <span>👁️</span> <span data-translate="view_user">Reba User View</span>
+            </button>
+            <button class="logout" onclick="logout()">
+                <span>🚪</span> <span data-translate="logout">Sohoka</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- Admin Tabs -->
+    <div class="admin-tabs">
+        <button class="tab-btn active" onclick="showTab('upload')">
+            <span>📤</span> <span data-translate="upload_songs">Shyiraho</span>
+        </button>
+        <button class="tab-btn" onclick="showTab('manage')">
+            <span>📋</span> <span data-translate="manage_songs">Menya</span>
+        </button>
+        <button class="tab-btn" onclick="showTab('status')">
+            <span>📊</span> <span data-translate="status">Status</span>
+        </button>
+        
+        <!-- NEW TAB FOR NOTIFICATION SETTINGS -->
+        <button class="tab-btn" onclick="showTab('notifications')">
+            <span>🔔</span> <span data-translate="notifications">Notifications</span>
+        </button>
+    </div>
+
+    <!-- Upload Tab -->
+    <div id="uploadTab" class="tab-content active">
+        <div class="upload-info">
+            <h3 style="color: #4b0082; margin-top: 0;" data-translate="upload_instructions">Shyiraho Indirimbo</h3>
+            <p><strong data-translate="instructions">Amabwiriza:</strong> <span data-translate="upload_guide">Hitamo uburyo bwo gushyiramo, fayilo na igice.</span></p>
+            <p><strong>💡</strong> <span data-translate="upload_capabilities">Ushobora: Shyiramo indirimbo imwe, nyinshi icyarimwe, cyangwa fayilo nini (kugeza 10MB).</span></p>
+            <p><strong>📁</strong> <span data-translate="formats">Formats: MP3, PDF, JPG, PNG, GIF</span></p>
+        </div>
+        
+        <!-- Upload Options -->
+        <div class="upload-options">
+            <div class="upload-option active" onclick="selectUploadMode('single')">
+                <div class="upload-option-icon">📄</div>
+                <h4 data-translate="single_song">Indirimbo Imwe</h4>
+                <p data-translate="single_song_desc">Shyiramo indirimbo imwe</p>
+            </div>
+            <div class="upload-option" onclick="selectUploadMode('multiple')">
+                <div class="upload-option-icon">📚</div>
+                <h4 data-translate="multiple_songs">Indirimbo Nyinshi</h4>
+                <p data-translate="multiple_songs_desc">Shyiramo indirimbo nyinshi icyarimwe</p>
+            </div>
+            <div class="upload-option" onclick="selectUploadMode('large')">
+                <div class="upload-option-icon">💾</div>
+                <h4 data-translate="large_file">Fayilo Nini</h4>
+                <p data-translate="large_file_desc">Shyiramo fayilo nini (MP3 nini)</p>
+            </div>
+        </div>
+        
+        <!-- Upload Form -->
+        <div class="upload-form">
+            <!-- Section Selection -->
+            <div class="upload-form-group">
+                <label for="uploadSection">📁 <span data-translate="select_section_label">Hitamo Igice:</span></label>
+                <select id="uploadSection" data-translate="select_section_placeholder">
+                    <option value="" data-translate="select_mass_section">-- Hitamo igice cya missa --</option>
+                    <!-- Options will be populated by JavaScript -->
+                </select>
+            </div>
+            
+            <!-- File Selection -->
+            <div class="upload-form-group">
+                <label id="fileLabel" for="uploadFile">📄 <span data-translate="select_file">Hitamo Fayilo:</span></label>
+                <input type="file" id="uploadFile" accept=".pdf,.jpg,.jpeg,.png,.gif,.mp3">
+            </div>
+            
+            <!-- Files Preview -->
+            <div id="filesPreview" class="files-preview-container">
+                <!-- Files will be previewed here -->
+            </div>
+            
+            <!-- Status Message -->
+            <div id="uploadStatusMessage" class="status-message">
+                <!-- Status messages will appear here -->
+            </div>
+            
+            <!-- Upload Buttons -->
+            <div class="upload-buttons">
+                <button id="uploadButton" class="upload-btn primary" onclick="startUpload()">
+                    <span>📤</span> <span id="uploadButtonText" data-translate="upload_song">Shyiraho Indirimbo</span>
+                </button>
+                <button class="upload-btn secondary" onclick="resetUploadForm()">
+                    <span>🔄</span> <span data-translate="reset">Subira utangire</span>
+                </button>
+                <button id="cancelUploadButton" class="upload-btn danger" style="display: none;" onclick="cancelUpload()">
+                    <span>⏹️</span> <span data-translate="stop">Hagarika</span>
+                </button>
+            </div>
+            
+            <!-- Single File Progress -->
+            <div id="progressContainer" class="progress-container">
+                <div class="progress-label">
+                    <span data-translate="uploading">Iri kushyirwa:</span>
+                    <span id="progressPercent">0%</span>
+                </div>
+                <div class="progress-bar">
+                    <div id="progressFill" class="progress-fill" style="width: 0%"></div>
+                </div>
+                <div id="progressMessage" style="margin-top: 10px; font-size: 14px; color: #666;" data-translate="wait">
+                    Tegereza...
+                </div>
+            </div>
+            
+            <!-- Batch Upload Progress -->
+            <div id="batchProgressContainer" class="batch-progress-container">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                    <h4 style="margin: 0; color: #4b0082;" data-translate="batch_upload">📦 Gushyiraho Indirimbo Nyinshi</h4>
+                    <button onclick="cancelBatchUpload()" style="padding: 8px 15px; background: #dc3545; color: white; border: none; border-radius: 5px; cursor: pointer;" data-translate="stop">
+                        Hagarika
+                    </button>
+                </div>
+                
+                <div class="batch-progress-stats">
+                    <div class="batch-stat">
+                        <span class="batch-stat-value" id="batchTotal">0</span>
+                        <span class="batch-stat-label" data-translate="total">Zose</span>
+                    </div>
+                    <div class="batch-stat">
+                        <span class="batch-stat-value" id="batchCompleted">0</span>
+                        <span class="batch-stat-label" data-translate="completed">Byakozwe</span>
+                    </div>
+                    <div class="batch-stat">
+                        <span class="batch-stat-value" id="batchProgress">0%</span>
+                        <span class="batch-stat-label" data-translate="progress">Imikoro</span>
+                    </div>
+                    <div class="batch-stat">
+                        <span class="batch-stat-value" id="batchFailed">0</span>
+                        <span class="batch-stat-label" data-translate="failed">Byanze</span>
+                    </div>
+                </div>
+                
+                <div class="progress-bar" style="margin-top: 20px;">
+                    <div id="batchProgressFill" class="progress-fill" style="width: 0%"></div>
+                </div>
+                
+                <div id="batchCurrentFile" style="margin-top: 15px; font-size: 14px; color: #666; text-align: center;" data-translate="wait">
+                    Tegereza...
+                </div>
+            </div>
+            
+            <!-- Single Upload Success -->
+            <div id="uploadSuccess" class="upload-success">
+                <h4>✅ <span data-translate="upload_success">Indirimbo yashyizweho neza!</span></h4>
+                <p id="successMessage"></p>
+                <div style="margin-top: 15px;">
+                    <button onclick="showTab('manage')" style="margin: 5px; padding: 10px 20px; background: #4b0082; color: white; border: none; border-radius: 5px; cursor: pointer;" data-translate="view_all_songs">
+                        Reba indirimbo zose
+                    </button>
+                    <button onclick="resetUploadForm()" style="margin: 5px; padding: 10px 20px; background: #28a745; color: white; border: none; border-radius: 5px; cursor: pointer;" data-translate="upload_another">
+                        Shyiraho indi
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Batch Upload Success -->
+            <div id="batchUploadSuccess" class="batch-upload-success">
+                <h4>✅ <span data-translate="batch_upload_success">Indirimbo nyinshi zashyizweho neza!</span></h4>
+                <p id="batchSuccessMessage"></p>
+                
+                <div class="success-list" id="batchSuccessList" style="max-height: 200px; overflow-y: auto; margin: 15px 0; padding: 10px; background: white; border-radius: 8px;">
+                    <!-- Successfully uploaded files will appear here -->
+                </div>
+                
+                <div style="margin-top: 15px;">
+                    <button onclick="showTab('manage')" style="margin: 5px; padding: 10px 20px; background: #4b0082; color: white; border: none; border-radius: 5px; cursor: pointer;" data-translate="view_all_songs">
+                        Reba indirimbo zose
+                    </button>
+                    <button onclick="resetUploadForm()" style="margin: 5px; padding: 10px 20px; background: #28a745; color: white; border: none; border-radius: 5px; cursor: pointer;" data-translate="upload_more">
+                        Shyiraho izindi
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Manage Songs Tab -->
+    <div id="manageTab" class="tab-content">
+        <div class="search-admin">
+            <input type="text" id="searchInput" data-translate="search_songs_placeholder" placeholder="Shaka indirimbo..." oninput="searchSongs()">
+            <select id="filterSection" data-translate="filter_section_placeholder" onchange="filterSongs()">
+                <option value="" data-translate="select_section">-- Hitamo igice --</option>
+                <!-- Options will be populated by JavaScript -->
+            </select>
+            <button onclick="clearFilters()" data-translate="clear">Subira</button>
+        </div>
+        
+        <div style="margin: 20px 0; padding: 15px; background: #f8f9fa; border-radius: 8px; border-left: 4px solid #4b0082;">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                    <strong data-translate="total_uploads">Indirimbo zishyizweho:</strong> <span id="totalSongsCount">0</span>
+                    <span style="margin: 0 10px;">|</span>
+                    <strong data-translate="your_uploads">Zishyizwe nawe:</strong> <span id="mySongsCount">0</span>
+                    <span style="margin: 0 10px;">|</span>
+                    <strong data-translate="sections">Ibigice:</strong> <span id="sectionsCount">0</span>
+                </div>
+                <button onclick="loadSongs()" style="padding: 10px 20px; background: #4b0082; color: white; border: none; border-radius: 5px; cursor: pointer;">
+                    <span>🔄</span> <span data-translate="refresh_view">Ongera urebe</span>
+                </button>
+            </div>
+        </div>
+        
+        <div id="songsList" class="songs-list-admin">
+            <!-- Songs will be loaded here -->
+        </div>
+    </div>
+
+    <!-- Status Tab -->
+    <div id="statusTab" class="tab-content">
+        <div class="reports-grid">
+            <div class="report-card">
+                <h4 data-translate="system_info">📊 Ibyerekeye Sisitemu</h4>
+                <div class="stats-item">
+                    <span data-translate="total_songs">Indirimbo zishyizweho:</span>
+                    <strong id="statusTotalSongs">0</strong>
+                </div>
+                <div class="stats-item">
+                    <span data-translate="total_downloads">Downloads zose:</span>
+                    <strong id="statusTotalDownloads">0</strong>
+                </div>
+                <div class="stats-item">
+                    <span data-translate="sections_count">Ibigice:</span>
+                    <strong id="statusSectionsCount">0</strong>
+                </div>
+            </div>
+            
+            <div class="report-card">
+                <h4 data-translate="your_activity">👤 Ibikorwa byawe</h4>
+                <div class="stats-item">
+                    <span data-translate="your_uploads_count">Washyizemo:</span>
+                    <strong id="statusMySongs">0</strong>
+                </div>
+                <div class="stats-item">
+                    <span data-translate="current_admin">Uyobowe:</span>
+                    <strong id="statusAdminName">Admin</strong>
+                </div>
+                <div class="stats-item">
+                    <span data-translate="last_login">Winjiye:</span>
+                    <strong id="statusLastLogin">--</strong>
+                </div>
+            </div>
+            
+            <div class="report-card">
+                <h4 data-translate="connection_info">🔗 Ubumenyi</h4>
+                <div class="stats-item">
+                    <span data-translate="user_url">User URL:</span>
+                    <a href="index.html" target="_blank" style="color: #4b0082; text-decoration: none; font-weight: bold;">index.html</a>
+                </div>
+                <div class="stats-item">
+                    <span data-translate="system_status">Sisitemu:</span>
+                    <strong style="color: #28a745;" data-translate="working">Ikora</strong>
+                </div>
+                <button onclick="testUserView()" style="width: 100%; margin-top: 15px; padding: 12px; background: #17a2b8; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold;">
+                    <span>🔍</span> <span data-translate="test_user_view">Gerageza User View</span>
+                </button>
+            </div>
+        </div>
+        
+        <div class="report-card" style="margin-top: 30px;">
+            <h4 data-translate="upload_logs">🔔 Amakuru ya Upload</h4>
+            <div id="uploadLog" style="max-height: 200px; overflow-y: auto; padding: 10px; background: #f8f9fa; border-radius: 8px;">
+                <!-- Upload logs will appear here -->
+                <p style="text-align: center; color: #666;" data-translate="no_logs">Nta makuru</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- NEW: Notifications Tab -->
+    <div id="notificationsTab" class="tab-content">
+        <div class="notification-settings">
+            <h4><span>📧</span> <span data-translate="email_notifications">Guhana Notifications kuri Email</span></h4>
+            
+            <div class="email-settings">
+                <div class="email-input-group">
+                    <input type="email" id="adminEmail" placeholder="shyiramo email yawe..." value="">
+                    <div class="email-actions">
+                        <button class="save-email-btn" onclick="saveEmailSettings()">
+                            <span>💾</span> <span data-translate="save_email">Kubika Email</span>
+                        </button>
+                        <button class="test-email-btn" onclick="testEmailNotification()">
+                            <span>✉️</span> <span data-translate="test_email">Gerageza Email</span>
+                        </button>
+                    </div>
+                </div>
+                
+                <div id="emailStatus" class="email-status"></div>
+                
+                <div style="margin-top: 20px; padding: 15px; background: #f8f9fa; border-radius: 8px; border-left: 4px solid #4b0082;">
+                    <p style="margin: 0; font-size: 14px; color: #495057;">
+                        <strong>🔔 Icyitonderwa:</strong> Email yawe izakoreshwa gusa kugirango ukwirakwizwe iyo umuntu akora download. Nta message izohererewe abantu.
+                    </p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="notification-settings">
+            <h4><span>📊</span> <span data-translate="notification_stats">Amatangazo y'ibikorwa</span></h4>
+            
+            <div class="notification-stats">
+                <div class="stat-card">
+                    <span class="stat-value" id="totalDownloads">0</span>
+                    <span class="stat-label" data-translate="total_downloads_stat">Downloads Zose</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-value" id="last24hDownloads">0</span>
+                    <span class="stat-label" data-translate="last_24h">Mu ma 24 ashize</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-value" id="lastEmailSent">--</span>
+                    <span class="stat-label" data-translate="last_email">Email ishize yoherejwe</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-value" id="emailsSent">0</span>
+                    <span class="stat-label" data-translate="emails_sent">Email zoherejwe</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="notification-settings">
+            <h4><span>⚙️</span> <span data-translate="notification_settings">Igenamiterere ry'Amatangazo</span></h4>
+            
+            <div style="display: flex; flex-direction: column; gap: 15px;">
+                <label style="display: flex; align-items: center; gap: 10px;">
+                    <input type="checkbox" id="enableNotifications" checked>
+                    <span data-translate="enable_email_notifications">Emeza amatangazo kuri email</span>
+                </label>
+                
+                <label style="display: flex; align-items: center; gap: 10px;">
+                    <input type="checkbox" id="notifyAllDownloads" checked>
+                    <span data-translate="notify_all_downloads">Tangaza buri download</span>
+                </label>
+                
+                <label style="display: flex; align-items: center; gap: 10px;">
+                    <input type="checkbox" id="notifyPopularSongs">
+                    <span data-translate="notify_popular_songs">Tangaza indirimbo zirikunda cyane</span>
+                </label>
+                
+                <div style="margin-top: 10px;">
+                    <label data-translate="notification_frequency">Uko byinshi ukwirakwiza:</label>
+                    <select id="notificationFrequency" style="margin-left: 10px; padding: 8px 15px; border: 2px solid #ddd; border-radius: 5px;">
+                        <option value="immediate" data-translate="immediate">Buri download</option>
+                        <option value="hourly" data-translate="hourly">Buri isaha</option>
+                        <option value="daily" data-translate="daily">Buri munsi</option>
+                    </select>
+                </div>
+                
+                <button onclick="saveNotificationSettings()" style="margin-top: 20px; padding: 12px 25px; background: #4b0082; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; display: flex; align-items: center; gap: 8px; align-self: flex-start;">
+                    <span>💾</span> <span data-translate="save_settings">Kubika Igenamiterere</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ===== LANGUAGE MANAGEMENT =====
+        const translations = {
+            'rw': {
+                'admin_dashboard': 'Admin Dashboard',
+                'refresh': 'Ongera ushyire',
+                'view_user': 'Reba User View',
+                'logout': 'Sohoka',
+                'upload_songs': 'Shyiraho',
+                'manage_songs': 'Menya',
+                'status': 'Status',
+                'notifications': 'Notifications',
+                'upload_instructions': 'Shyiraho Indirimbo',
+                'instructions': 'Amabwiriza:',
+                'upload_guide': 'Hitamo uburyo bwo gushyiramo, fayilo na igice.',
+                'upload_capabilities': 'Ushobora: Shyiramo indirimbo imwe, nyinshi icyarimwe, cyangwa fayilo nini (kugeza 10MB).',
+                'formats': 'Formats: MP3, PDF, JPG, PNG, GIF',
+                'single_song': 'Indirimbo Imwe',
+                'single_song_desc': 'Shyiramo indirimbo imwe',
+                'multiple_songs': 'Indirimbo Nyinshi',
+                'multiple_songs_desc': 'Shyiramo indirimbo nyinshi icyarimwe',
+                'large_file': 'Fayilo Nini',
+                'large_file_desc': 'Shyiramo fayilo nini (MP3 nini)',
+                'select_section_label': 'Hitamo Igice:',
+                'select_section_placeholder': '-- Hitamo igice --',
+                'select_mass_section': '-- Hitamo igice cya missa --',
+                'select_file': 'Hitamo Fayilo:',
+                'upload_song': 'Shyiraho Indirimbo',
+                'reset': 'Subira utangire',
+                'stop': 'Hagarika',
+                'uploading': 'Iri kushyirwa:',
+                'wait': 'Tegereza...',
+                'batch_upload': '📦 Gushyiraho Indirimbo Nyinshi',
+                'total': 'Zose',
+                'completed': 'Byakozwe',
+                'progress': 'Imikoro',
+                'failed': 'Byanze',
+                'upload_success': 'Indirimbo yashyizweho neza!',
+                'view_all_songs': 'Reba indirimbo zose',
+                'upload_another': 'Shyiraho indi',
+                'batch_upload_success': 'Indirimbo nyinshi zashyizweho neza!',
+                'upload_more': 'Shyiraho izindi',
+                'search_songs_placeholder': 'Shaka indirimbo...',
+                'filter_section_placeholder': '-- Shaka ukurikije igice --',
+                'clear': 'Subira',
+                'total_uploads': 'Indirimbo zishyizweho:',
+                'your_uploads': 'Zishyizwe nawe:',
+                'sections': 'Ibigice:',
+                'refresh_view': 'Ongera urebe',
+                'system_info': '📊 Ibyerekeye Sisitemu',
+                'total_songs': 'Indirimbo zishyizweho:',
+                'total_downloads': 'Downloads zose:',
+                'sections_count': 'Ibigice:',
+                'your_activity': '👤 Ibikorwa byawe',
+                'your_uploads_count': 'Washyizemo:',
+                'current_admin': 'Uyobowe:',
+                'last_login': 'Winjiye:',
+                'connection_info': '🔗 Ubumenyi',
+                'user_url': 'User URL:',
+                'system_status': 'Sisitemu:',
+                'working': 'Ikora',
+                'test_user_view': 'Gerageza User View',
+                'upload_logs': '🔔 Amakuru ya Upload',
+                'no_logs': 'Nta makuru',
+                'email_notifications': 'Guhana Notifications kuri Email',
+                'save_email': 'Kubika Email',
+                'test_email': 'Gerageza Email',
+                'notification_stats': 'Amatangazo y\'ibikorwa',
+                'total_downloads_stat': 'Downloads Zose',
+                'last_24h': 'Mu ma 24 ashize',
+                'last_email': 'Email ishize yoherejwe',
+                'emails_sent': 'Email zoherejwe',
+                'notification_settings': 'Igenamiterere ry\'Amatangazo',
+                'enable_email_notifications': 'Emeza amatangazo kuri email',
+                'notify_all_downloads': 'Tangaza buri download',
+                'notify_popular_songs': 'Tangaza indirimbo zirikunda cyane',
+                'notification_frequency': 'Uko byinshi ukwirakwiza:',
+                'immediate': 'Buri download',
+                'hourly': 'Buri isaha',
+                'daily': 'Buri munsi',
+                'save_settings': 'Kubika Igenamiterere',
+                'search': 'Shaka',
+                'no_songs': 'Nta ndirimbo',
+                'preview': 'Reba',
+                'delete': 'Siba',
+                'my_upload': 'Nashyize'
+            },
+            'en': {
+                'admin_dashboard': 'Admin Dashboard',
+                'refresh': 'Refresh',
+                'view_user': 'View User',
+                'logout': 'Logout',
+                'upload_songs': 'Upload',
+                'manage_songs': 'Manage',
+                'status': 'Status',
+                'notifications': 'Notifications',
+                'upload_instructions': 'Upload Songs',
+                'instructions': 'Instructions:',
+                'upload_guide': 'Choose upload method, file and section.',
+                'upload_capabilities': 'You can: Upload single song, multiple at once, or large file (up to 10MB).',
+                'formats': 'Formats: MP3, PDF, JPG, PNG, GIF',
+                'single_song': 'Single Song',
+                'single_song_desc': 'Upload single song',
+                'multiple_songs': 'Multiple Songs',
+                'multiple_song_desc': 'Upload multiple songs at once',
+                'large_file': 'Large File',
+                'large_file_desc': 'Upload large file (big MP3)',
+                'select_section_label': 'Select Section:',
+                'select_section_placeholder': '-- Select section --',
+                'select_mass_section': '-- Select mass section --',
+                'select_file': 'Select File:',
+                'upload_song': 'Upload Song',
+                'reset': 'Reset',
+                'stop': 'Stop',
+                'uploading': 'Uploading:',
+                'wait': 'Please wait...',
+                'batch_upload': '📦 Batch Upload',
+                'total': 'Total',
+                'completed': 'Completed',
+                'progress': 'Progress',
+                'failed': 'Failed',
+                'upload_success': 'Song uploaded successfully!',
+                'view_all_songs': 'View all songs',
+                'upload_another': 'Upload another',
+                'batch_upload_success': 'Multiple songs uploaded successfully!',
+                'upload_more': 'Upload more',
+                'search_songs_placeholder': 'Search songs...',
+                'filter_section_placeholder': '-- Filter by section --',
+                'clear': 'Clear',
+                'total_uploads': 'Total uploads:',
+                'your_uploads': 'Your uploads:',
+                'sections': 'Sections:',
+                'refresh_view': 'Refresh view',
+                'system_info': '📊 System Info',
+                'total_songs': 'Total songs:',
+                'total_downloads': 'Total downloads:',
+                'sections_count': 'Sections:',
+                'your_activity': '👤 Your Activity',
+                'your_uploads_count': 'Your uploads:',
+                'current_admin': 'Current admin:',
+                'last_login': 'Last login:',
+                'connection_info': '🔗 Connection Info',
+                'user_url': 'User URL:',
+                'system_status': 'System:',
+                'working': 'Working',
+                'test_user_view': 'Test User View',
+                'upload_logs': '🔔 Upload Logs',
+                'no_logs': 'No logs',
+                'email_notifications': 'Email Notifications',
+                'save_email': 'Save Email',
+                'test_email': 'Test Email',
+                'notification_stats': 'Notification Statistics',
+                'total_downloads_stat': 'Total Downloads',
+                'last_24h': 'Last 24 hours',
+                'last_email': 'Last email sent',
+                'emails_sent': 'Emails sent',
+                'notification_settings': 'Notification Settings',
+                'enable_email_notifications': 'Enable email notifications',
+                'notify_all_downloads': 'Notify all downloads',
+                'notify_popular_songs': 'Notify popular songs',
+                'notification_frequency': 'Notification frequency:',
+                'immediate': 'Every download',
+                'hourly': 'Hourly',
+                'daily': 'Daily',
+                'save_settings': 'Save Settings',
+                'search': 'Search',
+                'no_songs': 'No songs',
+                'preview': 'Preview',
+                'delete': 'Delete',
+                'my_upload': 'My upload'
+            },
+            'fr': {
+                'admin_dashboard': 'Tableau de Bord Admin',
+                'refresh': 'Actualiser',
+                'view_user': 'Voir Utilisateur',
+                'logout': 'Déconnexion',
+                'upload_songs': 'Télécharger',
+                'manage_songs': 'Gérer',
+                'status': 'Statut',
+                'notifications': 'Notifications',
+                'upload_instructions': 'Télécharger des Chants',
+                'instructions': 'Instructions:',
+                'upload_guide': 'Choisissez la méthode, le fichier et la section.',
+                'upload_capabilities': 'Vous pouvez: Télécharger un seul chant, plusieurs à la fois, ou un gros fichier (jusqu\'à 10MB).',
+                'formats': 'Formats: MP3, PDF, JPG, PNG, GIF',
+                'single_song': 'Chant Unique',
+                'single_song_desc': 'Télécharger un seul chant',
+                'multiple_songs': 'Plusieurs Chants',
+                'multiple_song_desc': 'Télécharger plusieurs chants à la fois',
+                'large_file': 'Gros Fichier',
+                'large_file_desc': 'Télécharger un gros fichier (MP3 volumineux)',
+                'select_section_label': 'Sélectionnez la Section:',
+                'select_section_placeholder': '-- Sélectionnez section --',
+                'select_mass_section': '-- Sélectionnez section de messe --',
+                'select_file': 'Sélectionnez Fichier:',
+                'upload_song': 'Télécharger Chant',
+                'reset': 'Réinitialiser',
+                'stop': 'Arrêter',
+                'uploading': 'Téléchargement:',
+                'wait': 'Veuillez patienter...',
+                'batch_upload': '📦 Téléchargement en Lot',
+                'total': 'Total',
+                'completed': 'Terminé',
+                'progress': 'Progrès',
+                'failed': 'Échoué',
+                'upload_success': 'Chant téléchargé avec succès!',
+                'view_all_songs': 'Voir tous les chants',
+                'upload_another': 'Télécharger un autre',
+                'batch_upload_success': 'Plusieurs chants téléchargés avec succès!',
+                'upload_more': 'Télécharger plus',
+                'search_songs_placeholder': 'Rechercher des chants...',
+                'filter_section_placeholder': '-- Filtrer par section --',
+                'clear': 'Effacer',
+                'total_uploads': 'Téléchargements totaux:',
+                'your_uploads': 'Vos téléchargements:',
+                'sections': 'Sections:',
+                'refresh_view': 'Actualiser vue',
+                'system_info': '📊 Informations Système',
+                'total_songs': 'Chants totaux:',
+                'total_downloads': 'Téléchargements totaux:',
+                'sections_count': 'Sections:',
+                'your_activity': '👤 Votre Activité',
+                'your_uploads_count': 'Vos téléchargements:',
+                'current_admin': 'Admin actuel:',
+                'last_login': 'Dernière connexion:',
+                'connection_info': '🔗 Informations Connexion',
+                'user_url': 'URL Utilisateur:',
+                'system_status': 'Système:',
+                'working': 'Fonctionnel',
+                'test_user_view': 'Tester Vue Utilisateur',
+                'upload_logs': '🔔 Journaux de Téléchargement',
+                'no_logs': 'Aucun journal',
+                'email_notifications': 'Notifications par Email',
+                'save_email': 'Enregistrer Email',
+                'test_email': 'Tester Email',
+                'notification_stats': 'Statistiques Notifications',
+                'total_downloads_stat': 'Téléchargements Totaux',
+                'last_24h': 'Dernières 24h',
+                'last_email': 'Dernier email envoyé',
+                'emails_sent': 'Emails envoyés',
+                'notification_settings': 'Paramètres Notifications',
+                'enable_email_notifications': 'Activer notifications email',
+                'notify_all_downloads': 'Notifier tous les téléchargements',
+                'notify_popular_songs': 'Notifier chants populaires',
+                'notification_frequency': 'Fréquence notification:',
+                'immediate': 'Chaque téléchargement',
+                'hourly': 'Horaire',
+                'daily': 'Quotidien',
+                'save_settings': 'Enregistrer Paramètres',
+                'search': 'Rechercher',
+                'no_songs': 'Aucun chant',
+                'preview': 'Aperçu',
+                'delete': 'Supprimer',
+                'my_upload': 'Mon téléchargement'
+            },
+            'sw': {
+                'admin_dashboard': 'Dashibodi ya Admin',
+                'refresh': 'Sasisha',
+                'view_user': 'Angalia Mtumiaji',
+                'logout': 'Toka',
+                'upload_songs': 'Pakia',
+                'manage_songs': 'Dhibiti',
+                'status': 'Hali',
+                'notifications': 'Arifa',
+                'upload_instructions': 'Pakia Nyimbo',
+                'instructions': 'Maelekezo:',
+                'upload_guide': 'Chagua njia ya upakiaji, faili na sehemu.',
+                'upload_capabilities': 'Unaweza: Pakia wimbo mmoja, wengi kwa mara moja, au faili kubwa (hadi 10MB).',
+                'formats': 'Aina: MP3, PDF, JPG, PNG, GIF',
+                'single_song': 'Wimbo Mmoja',
+                'single_song_desc': 'Pakia wimbo mmoja',
+                'multiple_songs': 'Nyimbo Nyingi',
+                'multiple_song_desc': 'Pakia nyimbo nyingi kwa mara moja',
+                'large_file': 'Faili Kubwa',
+                'large_file_desc': 'Pakia faili kubwa (MP3 kubwa)',
+                'select_section_label': 'Chagua Sehemu:',
+                'select_section_placeholder': '-- Chagua sehemu --',
+                'select_mass_section': '-- Chagua sehemu ya misa --',
+                'select_file': 'Chagua Faili:',
+                'upload_song': 'Pakia Wimbo',
+                'reset': 'Weka upya',
+                'stop': 'Simamisha',
+                'uploading': 'Inapakiwa:',
+                'wait': 'Subiri kidogo...',
+                'batch_upload': '📦 Upakiaji wa Wingi',
+                'total': 'Jumla',
+                'completed': 'Imekamilika',
+                'progress': 'Maendeleo',
+                'failed': 'Imeshindwa',
+                'upload_success': 'Wimbo umepakiwa kikamilifu!',
+                'view_all_songs': 'Angalia nyimbo zote',
+                'upload_another': 'Pakia nyingine',
+                'batch_upload_success': 'Nyimbo nyingi zimepakiwa kikamilifu!',
+                'upload_more': 'Pakia zaidi',
+                'search_songs_placeholder': 'Tafuta nyimbo...',
+                'filter_section_placeholder': '-- Chuja kwa sehemu --',
+                'clear': 'Safisha',
+                'total_uploads': 'Upakiaji wa jumla:',
+                'your_uploads': 'Upakiaji wako:',
+                'sections': 'Sehemu:',
+                'refresh_view': 'Sasisha muonekano',
+                'system_info': '📊 Maelezo ya Mfumo',
+                'total_songs': 'Nyimbo za jumla:',
+                'total_downloads': 'Upakuaji wa jumla:',
+                'sections_count': 'Sehemu:',
+                'your_activity': '👤 Shughuli Zako',
+                'your_uploads_count': 'Upakiaji wako:',
+                'current_admin': 'Admin ya sasa:',
+                'last_login': 'Ingia ya mwisho:',
+                'connection_info': '🔗 Maelezo ya Muunganiko',
+                'user_url': 'URL ya Mtumiaji:',
+                'system_status': 'Mfumo:',
+                'working': 'Inafanya kazi',
+                'test_user_view': 'Jaribu Mtazamo wa Mtumiaji',
+                'upload_logs': '🔔 Kumbukumbu za Upakiaji',
+                'no_logs': 'Hakuna kumbukumbu',
+                'email_notifications': 'Arifa kwa Barua pepe',
+                'save_email': 'Hifadhi Barua pepe',
+                'test_email': 'Jaribu Barua pepe',
+                'notification_stats': 'Takwimu za Arifa',
+                'total_downloads_stat': 'Upakuaji wa Jumla',
+                'last_24h': 'Masaa 24 yaliyopita',
+                'last_email': 'Barua pepe ya mwisho',
+                'emails_sent': 'Barua pepe zilizotumwa',
+                'notification_settings': 'Mipangilio ya Arifa',
+                'enable_email_notifications': 'Washa arifa za barua pepe',
+                'notify_all_downloads': 'Arifisha upakuaji wote',
+                'notify_popular_songs': 'Arifisha nyimbo maarufu',
+                'notification_frequency': 'Mara ngapi kutoa arifa:',
+                'immediate': 'Kila upakuaji',
+                'hourly': 'Kila saa',
+                'daily': 'Kila siku',
+                'save_settings': 'Hifadhi Mipangilio',
+                'search': 'Tafuta',
+                'no_songs': 'Hakuna nyimbo',
+                'preview': 'Onyesho',
+                'delete': 'Futa',
+                'my_upload': 'Upakiaji wangu'
+            }
+        };
+
+        const LanguageManager = {
+            currentLang: 'rw',
+            
+            init() {
+                this.currentLang = localStorage.getItem('app_language') || 'rw';
+                this.applyLanguage();
+                this.setupLanguageSwitcher();
+            },
+            
+            setLanguage(lang) {
+                if (translations[lang]) {
+                    this.currentLang = lang;
+                    localStorage.setItem('app_language', lang);
+                    this.applyLanguage();
+                    this.showLanguageChangeNotification(lang);
+                }
+            },
+            
+            applyLanguage() {
+                document.querySelectorAll('[data-translate]').forEach(element => {
+                    const key = element.getAttribute('data-translate');
+                    const translation = this.getTranslation(key);
+                    if (translation) {
+                        if (element.tagName === 'INPUT' || element.tagName === 'TEXTAREA') {
+                            element.placeholder = translation;
+                        } else if (element.tagName === 'OPTION') {
+                            element.textContent = translation;
+                        } else {
+                            element.textContent = translation;
+                        }
+                    }
+                });
+                
+                this.updateLanguageSwitcherUI();
+            },
+            
+            getTranslation(key) {
+                return translations[this.currentLang]?.[key] || translations['rw'][key] || key;
+            },
+            
+            setupLanguageSwitcher() {
+                const switcher = document.getElementById('languageSwitcher');
+                if (switcher) {
+                    switcher.innerHTML = `
+                        <div class="language-dropdown">
+                            <button class="language-current">
+                                <span class="language-flag">${this.getFlag(this.currentLang)}</span>
+                                <span class="language-name">${this.getLanguageName(this.currentLang)}</span>
+                                <span class="language-arrow">▼</span>
+                            </button>
+                            <div class="language-options">
+                                <button onclick="LanguageManager.setLanguage('rw')" class="${this.currentLang === 'rw' ? 'active' : ''}">
+                                    <span class="language-flag">🇷🇼</span> Kinyarwanda
+                                </button>
+                                <button onclick="LanguageManager.setLanguage('en')" class="${this.currentLang === 'en' ? 'active' : ''}">
+                                    <span class="language-flag">🇬🇧</span> English
+                                </button>
+                                <button onclick="LanguageManager.setLanguage('fr')" class="${this.currentLang === 'fr' ? 'active' : ''}">
+                                    <span class="language-flag">🇫🇷</span> Français
+                                </button>
+                                <button onclick="LanguageManager.setLanguage('sw')" class="${this.currentLang === 'sw' ? 'active' : ''}">
+                                    <span class="language-flag">🇹🇿</span> Swahili
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                    
+                    switcher.querySelector('.language-current').addEventListener('click', function(e) {
+                        e.stopPropagation();
+                        const options = this.parentElement.querySelector('.language-options');
+                        options.style.display = options.style.display === 'block' ? 'none' : 'block';
+                    });
+                    
+                    document.addEventListener('click', function() {
+                        const options = document.querySelector('.language-options');
+                        if (options) options.style.display = 'none';
+                    });
+                }
+            },
+            
+            updateLanguageSwitcherUI() {
+                const currentBtn = document.querySelector('.language-current');
+                const options = document.querySelectorAll('.language-options button');
+                
+                if (currentBtn) {
+                    currentBtn.querySelector('.language-flag').textContent = this.getFlag(this.currentLang);
+                    currentBtn.querySelector('.language-name').textContent = this.getLanguageName(this.currentLang);
+                }
+                
+                options.forEach(btn => {
+                    const lang = btn.getAttribute('onclick').match(/'(\w+)'/)?.[1];
+                    btn.classList.toggle('active', lang === this.currentLang);
+                });
+            },
+            
+            getFlag(lang) {
+                const flags = { 'rw': '🇷🇼', 'en': '🇬🇧', 'fr': '🇫🇷', 'sw': '🇹🇿' };
+                return flags[lang] || '🌐';
+            },
+            
+            getLanguageName(lang) {
+                const names = { 'rw': 'Kinyarwanda', 'en': 'English', 'fr': 'Français', 'sw': 'Swahili' };
+                return names[lang] || lang;
+            },
+            
+            showLanguageChangeNotification(lang) {
+                const messages = {
+                    'rw': 'Ururimi rwahinduwe!',
+                    'en': 'Language changed!',
+                    'fr': 'Langue changée!',
+                    'sw': 'Lugha imebadilishwa!'
+                };
+                
+                const notification = document.createElement('div');
+                notification.className = 'language-notification';
+                notification.innerHTML = `
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <span style="font-size: 20px;">${this.getFlag(lang)}</span>
+                        <span>${messages[lang]}</span>
+                    </div>
+                `;
+                
+                notification.style.cssText = `
+                    position: fixed;
+                    top: 20px;
+                    right: 20px;
+                    background: #4b0082;
+                    color: white;
+                    padding: 15px 25px;
+                    border-radius: 10px;
+                    z-index: 10000;
+                    box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+                    animation: slideIn 0.3s ease;
+                `;
+                
+                document.body.appendChild(notification);
+                
+                setTimeout(() => {
+                    notification.style.animation = 'slideOut 0.3s ease';
+                    setTimeout(() => {
+                        if (notification.parentNode) {
+                            notification.parentNode.removeChild(notification);
+                        }
+                    }, 300);
+                }, 3000);
+            }
+        };
+
+        // ===== GLOBAL VARIABLES =====
+        let currentUploadMode = 'single';
+        let isUploadInProgress = false;
+        let currentUploadCancel = false;
+        let batchUploadQueue = [];
+        let batchUploadResults = [];
+        let allSongs = [];
+        
+        // ===== INITIALIZATION =====
+        function initDashboard() {
+            // Check admin access
+            if (!localStorage.getItem('isAdmin')) {
+                window.location.href = "admin.html";
+                return;
+            }
+            
+            // Initialize language manager
+            LanguageManager.init();
+            
+            // Populate section dropdowns with your specific sections
+            populateSectionDropdowns();
+            
+            setupUploadListener();
+            loadSongs();
+            updateStatus();
+            
+            // Set admin info
+            const adminUser = localStorage.getItem('adminUser') || 'Admin';
+            document.getElementById('statusAdminName').textContent = adminUser;
+            
+            const lastLogin = localStorage.getItem('lastLogin') || '--';
+            document.getElementById('statusLastLogin').textContent = lastLogin;
+            
+            // Load upload logs
+            updateUploadLogDisplay();
+            
+            // Load notification settings
+            loadNotificationSettings();
+        }
+        
+        // ===== SECTION MANAGEMENT =====
+        function populateSectionDropdowns() {
+            const sections = [
+                "Gutangira",
+                "Nyagasani Tubabarire", 
+                "Imana nisingizwe mu ijuru",
+                "Zaburi",
+                "Alleluya",
+                "Indanga kwemera",
+                "Ibisabisho",
+                "Gutura",
+                "Nyirubutagatifu",
+                "Ntama w'Imana",
+                "Gusangira",
+                "Gushimira",
+                "Gusoza",
+                "Bikiramariya",
+                "Abatagatifu bose",
+                "Gushyingirwa",
+                "Ibitaramo",
+                "Adiventi",
+                "Noheli",
+                "Igisibo",
+                "Pasika",
+                "Asensiyo",
+                "Rohomutagatifu",
+                "Other More songs"
+            ];
+            
+            // Populate upload section dropdown
+            const uploadSelect = document.getElementById('uploadSection');
+            sections.forEach(section => {
+                const option = document.createElement('option');
+                option.value = section;
+                option.textContent = section;
+                uploadSelect.appendChild(option);
+            });
+            
+            // Populate filter section dropdown
+            const filterSelect = document.getElementById('filterSection');
+            sections.forEach(section => {
+                const option = document.createElement('option');
+                option.value = section;
+                option.textContent = section;
+                filterSelect.appendChild(option);
+            });
+        }
+        
+        // ===== UPLOAD FUNCTIONS =====
+        function selectUploadMode(mode) {
+            currentUploadMode = mode;
+            
+            // Update UI
+            document.querySelectorAll('.upload-option').forEach(option => {
+                option.classList.remove('active');
+            });
+            event.currentTarget.classList.add('active');
+            
+            const fileInput = document.getElementById('uploadFile');
+            const fileLabel = document.getElementById('fileLabel');
+            const uploadButtonText = document.getElementById('uploadButtonText');
+            
+            switch(mode) {
+                case 'single':
+                    fileInput.removeAttribute('multiple');
+                    fileInput.accept = ".pdf,.jpg,.jpeg,.png,.gif,.mp3";
+                    fileLabel.innerHTML = `📄 ${LanguageManager.getTranslation('select_file')}`;
+                    uploadButtonText.textContent = LanguageManager.getTranslation('upload_song');
+                    break;
+                    
+                case 'multiple':
+                    fileInput.setAttribute('multiple', 'multiple');
+                    fileInput.accept = ".pdf,.jpg,.jpeg,.png,.gif,.mp3";
+                    fileLabel.innerHTML = `📚 ${LanguageManager.getTranslation('select_file')}`;
+                    uploadButtonText.textContent = LanguageManager.getTranslation('upload_song');
+                    break;
+                    
+                case 'large':
+                    fileInput.removeAttribute('multiple');
+                    fileInput.accept = ".mp3,.pdf";
+                    fileLabel.innerHTML = `💾 ${LanguageManager.getTranslation('select_file')}`;
+                    uploadButtonText.textContent = LanguageManager.getTranslation('upload_song');
+                    break;
+            }
+            
+            // Reset preview
+            document.getElementById('filesPreview').classList.remove('show');
+            document.getElementById('filesPreview').innerHTML = '';
+        }
+        
+        function setupUploadListener() {
+            const fileInput = document.getElementById('uploadFile');
+            
+            fileInput.addEventListener('change', function() {
+                if (currentUploadMode === 'multiple' && this.files.length > 0) {
+                    showMultipleFilesPreview(this.files);
+                }
+                
+                updateUploadButton();
+            });
+            
+            const sectionSelect = document.getElementById('uploadSection');
+            sectionSelect.addEventListener('change', updateUploadButton);
+        }
+        
+        function showMultipleFilesPreview(files) {
+            const previewContainer = document.getElementById('filesPreview');
+            previewContainer.innerHTML = '';
+            
+            let totalSize = 0;
+            
+            Array.from(files).forEach((file, index) => {
+                totalSize += file.size;
+                
+                const fileItem = document.createElement('div');
+                fileItem.className = 'file-preview-item';
+                fileItem.innerHTML = `
+                    <div class="file-preview-info">
+                        <div class="file-preview-name">${file.name}</div>
+                        <div class="file-preview-size">${formatFileSize(file.size)}</div>
+                    </div>
+                    <div style="padding: 4px 10px; background: #fff3cd; color: #856404; border-radius: 12px; font-size: 12px; font-weight: bold;">
+                        ${LanguageManager.getTranslation('wait')}
+                    </div>
+                `;
+                previewContainer.appendChild(fileItem);
+            });
+            
+            const totalItem = document.createElement('div');
+            totalItem.className = 'file-preview-item';
+            totalItem.style.background = '#e8f4fd';
+            totalItem.innerHTML = `
+                <div class="file-preview-info">
+                    <div class="file-preview-name"><strong>${LanguageManager.getTranslation('total')}</strong></div>
+                    <div class="file-preview-size">${files.length} fayilo • ${formatFileSize(totalSize)}</div>
+                </div>
+                <div style="padding: 4px 10px; background: #4b0082; color: white; border-radius: 12px; font-size: 12px; font-weight: bold;">
+                    Yateguwe
+                </div>
+            `;
+            previewContainer.appendChild(totalItem);
+            
+            previewContainer.classList.add('show');
+        }
+        
+        function updateUploadButton() {
+            const fileInput = document.getElementById('uploadFile');
+            const sectionSelect = document.getElementById('uploadSection');
+            const uploadButton = document.getElementById('uploadButton');
+            
+            if (fileInput.files.length > 0 && sectionSelect.value) {
+                uploadButton.disabled = false;
+                
+                if (currentUploadMode === 'multiple' && fileInput.files.length > 1) {
+                    document.getElementById('uploadButtonText').textContent = 
+                        `${LanguageManager.getTranslation('upload_song')} (${fileInput.files.length})`;
+                } else if (currentUploadMode === 'single') {
+                    document.getElementById('uploadButtonText').textContent = LanguageManager.getTranslation('upload_song');
+                }
+            } else {
+                uploadButton.disabled = true;
+            }
+        }
+        
+        function startUpload() {
+            if (isUploadInProgress) {
+                showStatusMessage('Harimo gushyirwa! Tegereza gushyira byose.', 'warning');
+                return;
+            }
+            
+            const fileInput = document.getElementById('uploadFile');
+            const sectionSelect = document.getElementById('uploadSection');
+            
+            if (!fileInput.files || fileInput.files.length === 0) {
+                showStatusMessage('Hitamo fayilo!', 'error');
+                return;
+            }
+            
+            if (!sectionSelect.value) {
+                showStatusMessage('Hitamo igice!', 'error');
+                return;
+            }
+            
+            const files = fileInput.files;
+            const section = sectionSelect.value;
+            
+            // Validate files
+            for (let file of files) {
+                if (!isValidFile(file)) {
+                    showStatusMessage('Fayilo ntabwo ari yo! (PDF, JPG, PNG, GIF, MP3)', 'error');
+                    return;
+                }
+                
+                // Check file size (10MB max)
+                const maxSize = 10 * 1024 * 1024; // 10MB
+                if (file.size > maxSize) {
+                    showStatusMessage(`Fayilo "${file.name}" nini cyane!`, 'error');
+                    return;
+                }
+            }
+            
+            // Start upload based on mode
+            if (currentUploadMode === 'multiple' && files.length > 1) {
+                startBatchUpload(files, section);
+            } else {
+                uploadFile(files[0], section);
+            }
+        }
+        
+        // ===== SINGLE FILE UPLOAD =====
+        function uploadFile(file, section) {
+            isUploadInProgress = true;
+            currentUploadCancel = false;
+            
+            // Show progress and hide success messages
+            document.getElementById('progressContainer').classList.add('show');
+            document.getElementById('uploadSuccess').classList.remove('show');
+            document.getElementById('batchUploadSuccess').classList.remove('show');
+            document.getElementById('cancelUploadButton').style.display = 'flex';
+            
+            // Get song title from filename
+            const title = file.name
+                .replace(/\.[^/.]+$/, '')
+                .replace(/[_-]/g, ' ')
+                .trim();
+            
+            // Generate unique ID
+            const songId = 'song-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9);
+            const fileType = getFileType(file);
+            const adminUser = localStorage.getItem('adminUser') || 'admin';
+            
+            // Create song object
+            const newSong = {
+                id: songId,
+                title: title,
+                section: section,
+                fileUrl: URL.createObjectURL(file),
+                fileName: file.name,
+                fileType: fileType,
+                fileSize: formatFileSize(file.size),
+                dateAdded: new Date().toLocaleDateString('rw-RW'),
+                timeAdded: new Date().toLocaleTimeString('rw-RW'),
+                downloadCount: 0,
+                uploadedBy: adminUser,
+                uploadedAt: new Date().toISOString(),
+                status: 'active'
+            };
+            
+            // Simulate upload progress
+            simulateUploadProgress(newSong, file.size);
+        }
+        
+        function simulateUploadProgress(song, fileSize) {
+            let progress = 0;
+            const progressFill = document.getElementById('progressFill');
+            const progressPercent = document.getElementById('progressPercent');
+            const progressMessage = document.getElementById('progressMessage');
+            
+            // Calculate speed based on file size
+            const baseSpeed = 5;
+            const sizeFactor = Math.min(fileSize / (5 * 1024 * 1024), 5);
+            const speed = Math.max(2, baseSpeed / sizeFactor);
+            
+            const interval = setInterval(() => {
+                if (currentUploadCancel) {
+                    clearInterval(interval);
+                    progressMessage.textContent = 'Yahagaritswe';
+                    showStatusMessage('Gushyiraho byahagaritswe!', 'warning');
+                    isUploadInProgress = false;
+                    document.getElementById('cancelUploadButton').style.display = 'none';
+                    return;
+                }
+                
+                progress += speed;
+                
+                if (progress <= 100) {
+                    progressFill.style.width = progress + '%';
+                    progressPercent.textContent = Math.min(Math.round(progress), 100) + '%';
+                    
+                    // Update messages based on progress
+                    if (progress < 30) {
+                        progressMessage.textContent = 'Gusoma fayilo...';
+                    } else if (progress < 60) {
+                        progressMessage.textContent = 'Kubika data...';
+                    } else if (progress < 90) {
+                        progressMessage.textContent = 'Kongera kuri system...';
+                    } else {
+                        progressMessage.textContent = 'Gusohoza...';
+                    }
+                }
+                
+                if (progress >= 100) {
+                    clearInterval(interval);
+                    completeUpload(song);
+                }
+            }, 150);
+        }
+        
+        function cancelUpload() {
+            currentUploadCancel = true;
+        }
+        
+        function completeUpload(song) {
+            isUploadInProgress = false;
+            
+            // Save to localStorage
+            const existingSongs = JSON.parse(localStorage.getItem('catholicSongs') || '[]');
+            existingSongs.push(song);
+            localStorage.setItem('catholicSongs', JSON.stringify(existingSongs));
+            
+            // Save upload log
+            saveUploadLog(song);
+            
+            // Send notification to all users about new song
+            sendNewSongNotificationToUsers(song);
+            
+            // Update UI
+            document.getElementById('progressContainer').classList.remove('show');
+            document.getElementById('uploadSuccess').classList.add('show');
+            document.getElementById('cancelUploadButton').style.display = 'none';
+            
+            const successMessage = document.getElementById('successMessage');
+            successMessage.textContent = `"${song.title}" yashyizweho muri "${song.section}". Users bazayibona!`;
+            
+            // Update dashboard
+            loadSongs();
+            updateStatus();
+            
+            // Show notification
+            showNotification(`✅ "${song.title}" ${LanguageManager.getTranslation('upload_success')}`);
+        }
+        
+        function sendNewSongNotificationToUsers(song) {
+            // Get all users
+            const users = JSON.parse(localStorage.getItem('users') || '[]');
+            
+            // Get admin notification settings
+            const settings = JSON.parse(localStorage.getItem('notificationSettings') || '{}');
+            
+            if (settings.enableNotifications && settings.notifyAllDownloads) {
+                // Simulate sending notification to admin
+                const adminEmail = settings.email || '';
+                if (adminEmail) {
+                    console.log(`📧 Email to admin (${adminEmail}): New song uploaded - "${song.title}" in ${song.section}`);
+                }
+            }
+            
+            // Add notification to all users
+            users.forEach(user => {
+                const userNotifications = JSON.parse(localStorage.getItem(`userNotifications_${user.id}`) || '[]');
+                userNotifications.push({
+                    id: 'new-song-' + Date.now(),
+                    type: 'new_song',
+                    title: '🎵 Indirimbo nshya',
+                    message: `"${song.title}" yashyizweho muri ${song.section}`,
+                    timestamp: new Date().toISOString(),
+                    read: false
+                });
+                localStorage.setItem(`userNotifications_${user.id}`, JSON.stringify(userNotifications));
+            });
+        }
+        
+        // ===== BATCH UPLOAD =====
+        function startBatchUpload(files, section) {
+            isUploadInProgress = true;
+            currentUploadCancel = false;
+            batchUploadQueue = Array.from(files);
+            batchUploadResults = [];
+            
+            // Show batch progress
+            document.getElementById('batchProgressContainer').classList.add('show');
+            document.getElementById('progressContainer').classList.remove('show');
+            document.getElementById('uploadSuccess').classList.remove('show');
+            document.getElementById('batchUploadSuccess').classList.remove('show');
+            
+            // Initialize stats
+            document.getElementById('batchTotal').textContent = files.length;
+            document.getElementById('batchCompleted').textContent = '0';
+            document.getElementById('batchProgress').textContent = '0%';
+            document.getElementById('batchFailed').textContent = '0';
+            document.getElementById('batchProgressFill').style.width = '0%';
+            
+            // Start processing
+            processBatchUpload(section);
+        }
+        
+        function processBatchUpload(section) {
+            if (batchUploadQueue.length === 0 || currentUploadCancel) {
+                finishBatchUpload();
+                return;
+            }
+            
+            const file = batchUploadQueue.shift();
+            const currentIndex = batchUploadResults.length + 1;
+            const totalFiles = parseInt(document.getElementById('batchTotal').textContent);
+            
+            // Update current file display
+            document.getElementById('batchCurrentFile').textContent = 
+                `Inapakiwa: ${currentIndex}/${totalFiles} - ${file.name}`;
+            
+            // Update file preview status
+            const previewItems = document.querySelectorAll('.file-preview-item');
+            if (previewItems[currentIndex]) {
+                previewItems[currentIndex].querySelector('div:last-child').style.background = '#cce5ff';
+                previewItems[currentIndex].querySelector('div:last-child').textContent = LanguageManager.getTranslation('uploading');
+            }
+            
+            // Process this file
+            processSingleBatchFile(file, section, currentIndex - 1);
+        }
+        
+        function processSingleBatchFile(file, section, previewIndex) {
+            // Get song title from filename
+            const title = file.name
+                .replace(/\.[^/.]+$/, '')
+                .replace(/[_-]/g, ' ')
+                .trim();
+            
+            // Generate unique ID
+            const songId = 'song-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9) + '-' + previewIndex;
+            const fileType = getFileType(file);
+            const adminUser = localStorage.getItem('adminUser') || 'admin';
+            
+            // Create song object
+            const newSong = {
+                id: songId,
+                title: title,
+                section: section,
+                fileUrl: URL.createObjectURL(file),
+                fileName: file.name,
+                fileType: fileType,
+                fileSize: formatFileSize(file.size),
+                dateAdded: new Date().toLocaleDateString('rw-RW'),
+                timeAdded: new Date().toLocaleTimeString('rw-RW'),
+                downloadCount: 0,
+                uploadedBy: adminUser,
+                uploadedAt: new Date().toISOString(),
+                status: 'active'
+            };
+            
+            // Simulate batch upload
+            let progress = 0;
+            const speed = 15; // Faster for batch
+            
+            const interval = setInterval(() => {
+                if (currentUploadCancel) {
+                    clearInterval(interval);
+                    batchUploadResults.push({ song: null, success: false, error: 'Yahagaritswe' });
+                    processBatchUpload(section);
+                    return;
+                }
+                
+                progress += speed;
+                
+                if (progress >= 100) {
+                    clearInterval(interval);
+                    
+                    // Save the song
+                    const existingSongs = JSON.parse(localStorage.getItem('catholicSongs') || '[]');
+                    existingSongs.push(newSong);
+                    localStorage.setItem('catholicSongs', JSON.stringify(existingSongs));
+                    
+                    // Save upload log
+                    saveUploadLog(newSong);
+                    
+                    // Send notification
+                    sendNewSongNotificationToUsers(newSong);
+                    
+                    // Update result
+                    batchUploadResults.push({ song: newSong, success: true });
+                    
+                    // Update preview status
+                    const previewItems = document.querySelectorAll('.file-preview-item');
+                    if (previewItems[previewIndex]) {
+                        previewItems[previewIndex].querySelector('div:last-child').style.background = '#d4edda';
+                        previewItems[previewIndex].querySelector('div:last-child').textContent = LanguageManager.getTranslation('completed');
+                    }
+                    
+                    // Update stats
+                    updateBatchProgress();
+                    
+                    // Process next file
+                    setTimeout(() => processBatchUpload(section), 300);
+                }
+            }, 80);
+        }
+        
+        function updateBatchProgress() {
+            const total = parseInt(document.getElementById('batchTotal').textContent);
+            const completed = batchUploadResults.length;
+            const failed = batchUploadResults.filter(r => !r.success).length;
+            const progressPercent = Math.round((completed / total) * 100);
+            
+            document.getElementById('batchCompleted').textContent = completed;
+            document.getElementById('batchProgress').textContent = progressPercent + '%';
+            document.getElementById('batchFailed').textContent = failed;
+            document.getElementById('batchProgressFill').style.width = progressPercent + '%';
+        }
+        
+        function finishBatchUpload() {
+            isUploadInProgress = false;
+            
+            // Hide progress
+            document.getElementById('batchProgressContainer').classList.remove('show');
+            
+            // Show success message
+            const successCount = batchUploadResults.filter(r => r.success).length;
+            const totalCount = parseInt(document.getElementById('batchTotal').textContent);
+            
+            if (successCount > 0) {
+                const successMessage = document.getElementById('batchSuccessMessage');
+                successMessage.textContent = `${LanguageManager.getTranslation('completed')}: ${successCount}/${totalCount} ${LanguageManager.getTranslation('songs')}.`;
+                
+                // Show success list
+                const successList = document.getElementById('batchSuccessList');
+                successList.innerHTML = '';
+                
+                batchUploadResults.forEach(result => {
+                    if (result.success && result.song) {
+                        const item = document.createElement('div');
+                        item.className = 'success-item';
+                        item.textContent = `✅ ${result.song.title}`;
+                        successList.appendChild(item);
+                    }
+                });
+                
+                document.getElementById('batchUploadSuccess').classList.add('show');
+                
+                // Update dashboard
+                loadSongs();
+                updateStatus();
+                
+                // Show notification
+                showNotification(`✅ ${successCount} ${LanguageManager.getTranslation('songs')} ${LanguageManager.getTranslation('upload_success')}`);
+            } else {
+                showStatusMessage('Nta ndirimbo zashyizweho!', 'error');
+            }
+        }
+        
+        function cancelBatchUpload() {
+            currentUploadCancel = true;
+            showStatusMessage('Gushyiraho byahagaritswe!', 'warning');
+            document.getElementById('batchProgressContainer').classList.remove('show');
+            isUploadInProgress = false;
+        }
+        
+        // ===== MANAGE SONGS FUNCTIONS =====
+        function loadSongs() {
+            allSongs = JSON.parse(localStorage.getItem('catholicSongs') || '[]');
+            const adminUser = localStorage.getItem('adminUser') || 'admin';
+            
+            // Update counts
+            document.getElementById('totalSongsCount').textContent = allSongs.length;
+            document.getElementById('mySongsCount').textContent = allSongs.filter(s => s.uploadedBy === adminUser).length;
+            
+            // Count unique sections
+            const sections = [...new Set(allSongs.map(song => song.section))];
+            document.getElementById('sectionsCount').textContent = sections.length;
+            
+            // Display songs
+            const songsList = document.getElementById('songsList');
+            
+            if (allSongs.length === 0) {
+                songsList.innerHTML = `
+                    <div class="no-songs">
+                        <p>${LanguageManager.getTranslation('no_songs')}</p>
+                        <p>Shyiramo indirimbo muri tab ya "Shyiraho".</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            // Group by section
+            const songsBySection = {};
+            allSongs.forEach(song => {
+                if (!songsBySection[song.section]) {
+                    songsBySection[song.section] = [];
+                }
+                songsBySection[song.section].push(song);
+            });
+            
+            let html = '';
+            
+            for (const [section, sectionSongs] of Object.entries(songsBySection)) {
+                html += `
+                    <div class="admin-section">
+                        <h4>${section} <span class="count-badge">${sectionSongs.length}</span></h4>
+                `;
+                
+                sectionSongs.forEach(song => {
+                    const isMySong = song.uploadedBy === adminUser;
+                    html += `
+                        <div class="admin-song-item" id="admin-song-${song.id}">
+                            <div class="song-info">
+                                <strong>${song.title}</strong>
+                                <div class="song-details">
+                                    <span class="file-info">${song.fileType}</span>
+                                    <span class="section-info">${song.section}</span>
+                                    <span class="date-info">${song.dateAdded}</span>
+                                    <span class="size-info">${song.fileSize}</span>
+                                    <span class="downloads-info">🔽 ${song.downloadCount || 0}</span>
+                                    ${isMySong ? `<span style="background: #4b0082; color: white; padding: 3px 10px; border-radius: 12px; font-size: 11px; font-weight: bold;">${LanguageManager.getTranslation('my_upload')}</span>` : ''}
+                                </div>
+                            </div>
+                            <div class="song-actions">
+                                <button class="action-btn preview-btn" onclick="previewSong('${song.id}')">
+                                    <span>👁️</span> ${LanguageManager.getTranslation('preview')}
+                                </button>
+                                <button class="action-btn delete-btn" onclick="deleteSong('${song.id}')">
+                                    <span>🗑️</span> ${LanguageManager.getTranslation('delete')}
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                });
+                
+                html += `</div>`;
+            }
+            
+            songsList.innerHTML = html;
+        }
+        
+        function searchSongs() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const songs = JSON.parse(localStorage.getItem('catholicSongs') || '[]');
+            
+            if (!searchTerm) {
+                loadSongs();
+                return;
+            }
+            
+            const filteredSongs = songs.filter(song => 
+                song.title.toLowerCase().includes(searchTerm) ||
+                song.section.toLowerCase().includes(searchTerm)
+            );
+            
+            displayFilteredSongs(filteredSongs, `${LanguageManager.getTranslation('search')}: "${searchTerm}"`);
+        }
+        
+        function filterSongs() {
+            const section = document.getElementById('filterSection').value;
+            const songs = JSON.parse(localStorage.getItem('catholicSongs') || '[]');
+            
+            if (!section) {
+                loadSongs();
+                return;
+            }
+            
+            const filteredSongs = songs.filter(song => song.section === section);
+            displayFilteredSongs(filteredSongs, section);
+        }
+        
+        function displayFilteredSongs(songs, title) {
+            const songsList = document.getElementById('songsList');
+            const adminUser = localStorage.getItem('adminUser') || 'admin';
+            
+            if (songs.length === 0) {
+                songsList.innerHTML = `
+                    <div class="no-songs">
+                        <p>Nta ndirimbo zihuye na "${title}".</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            let html = `
+                <div class="admin-section">
+                    <h4>${title} <span class="count-badge">${songs.length}</span></h4>
+            `;
+            
+            songs.forEach(song => {
+                const isMySong = song.uploadedBy === adminUser;
+                html += `
+                    <div class="admin-song-item" id="admin-song-${song.id}">
+                        <div class="song-info">
+                            <strong>${song.title}</strong>
+                            <div class="song-details">
+                                <span class="file-info">${song.fileType}</span>
+                                <span class="section-info">${song.section}</span>
+                                <span class="date-info">${song.dateAdded}</span>
+                                <span class="size-info">${song.fileSize}</span>
+                                <span class="downloads-info">🔽 ${song.downloadCount || 0}</span>
+                                ${isMySong ? `<span style="background: #4b0082; color: white; padding: 3px 10px; border-radius: 12px; font-size: 11px; font-weight: bold;">${LanguageManager.getTranslation('my_upload')}</span>` : ''}
+                            </div>
+                        </div>
+                        <div class="song-actions">
+                            <button class="action-btn preview-btn" onclick="previewSong('${song.id}')">
+                                <span>👁️</span> ${LanguageManager.getTranslation('preview')}
+                            </button>
+                            <button class="action-btn delete-btn" onclick="deleteSong('${song.id}')">
+                                <span>🗑️</span> ${LanguageManager.getTranslation('delete')}
+                            </button>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            html += `</div>`;
+            songsList.innerHTML = html;
+        }
+        
+        function clearFilters() {
+            document.getElementById('searchInput').value = '';
+            document.getElementById('filterSection').value = '';
+            loadSongs();
+            showNotification('Byose byasubijwe!');
+        }
+        
+        function previewSong(songId) {
+            const songs = JSON.parse(localStorage.getItem('catholicSongs') || '[]');
+            const song = songs.find(s => s.id === songId);
+            
+            if (song && song.fileUrl) {
+                window.open(song.fileUrl, '_blank');
+            } else {
+                alert('Indirimbo ntabwo iboneka!');
+            }
+        }
+        
+        function deleteSong(songId) {
+            if (!confirm('Urashaka gusiba indirimbo iyi? Ibi ntibisubirwa!')) {
+                return;
+            }
+            
+            let songs = JSON.parse(localStorage.getItem('catholicSongs') || '[]');
+            const songIndex = songs.findIndex(s => s.id === songId);
+            
+            if (songIndex !== -1) {
+                // Remove from array
+                const removedSong = songs.splice(songIndex, 1)[0];
+                
+                // Save to localStorage
+                localStorage.setItem('catholicSongs', JSON.stringify(songs));
+                
+                // Add to delete log
+                addToDeleteLog(removedSong);
+                
+                // Remove from UI with animation
+                const songElement = document.getElementById(`admin-song-${songId}`);
+                if (songElement) {
+                    songElement.style.opacity = '0.5';
+                    songElement.style.transform = 'translateX(-100%)';
+                    setTimeout(() => {
+                        loadSongs();
+                        updateStatus();
+                        showNotification('Indirimbo yasibwe!');
+                    }, 300);
+                }
+            }
+        }
+        
+        // ===== STATUS FUNCTIONS =====
+        function updateStatus() {
+            const songs = JSON.parse(localStorage.getItem('catholicSongs') || '[]');
+            const adminUser = localStorage.getItem('adminUser') || 'admin';
+            
+            // Update counts
+            document.getElementById('statusTotalSongs').textContent = songs.length;
+            document.getElementById('statusMySongs').textContent = songs.filter(s => s.uploadedBy === adminUser).length;
+            
+            // Count unique sections
+            const sections = [...new Set(songs.map(song => song.section))];
+            document.getElementById('statusSectionsCount').textContent = sections.length;
+            
+            // Calculate total downloads
+            const totalDownloads = songs.reduce((sum, song) => sum + (song.downloadCount || 0), 0);
+            document.getElementById('statusTotalDownloads').textContent = totalDownloads;
+        }
+        
+        // ===== NOTIFICATION FUNCTIONS =====
+        function loadNotificationSettings() {
+            const settings = JSON.parse(localStorage.getItem('notificationSettings') || '{}');
+            
+            // Load email
+            if (settings.email) {
+                document.getElementById('adminEmail').value = settings.email;
+            }
+            
+            // Load checkboxes
+            if (settings.enableNotifications !== undefined) {
+                document.getElementById('enableNotifications').checked = settings.enableNotifications;
+            }
+            if (settings.notifyAllDownloads !== undefined) {
+                document.getElementById('notifyAllDownloads').checked = settings.notifyAllDownloads;
+            }
+            if (settings.notifyPopularSongs !== undefined) {
+                document.getElementById('notifyPopularSongs').checked = settings.notifyPopularSongs;
+            }
+            
+            // Load frequency
+            if (settings.notificationFrequency) {
+                document.getElementById('notificationFrequency').value = settings.notificationFrequency;
+            }
+            
+            // Load stats
+            updateNotificationStats();
+        }
+        
+        function saveEmailSettings() {
+            const email = document.getElementById('adminEmail').value.trim();
+            const emailStatus = document.getElementById('emailStatus');
+            
+            if (!email || !isValidEmail(email)) {
+                emailStatus.textContent = 'Shyiramo email nterinze!';
+                emailStatus.className = 'email-status error';
+                emailStatus.style.display = 'block';
+                return;
+            }
+            
+            const settings = JSON.parse(localStorage.getItem('notificationSettings') || '{}');
+            settings.email = email;
+            localStorage.setItem('notificationSettings', JSON.stringify(settings));
+            
+            emailStatus.textContent = 'Email yabikijwe neza!';
+            emailStatus.className = 'email-status success';
+            emailStatus.style.display = 'block';
+            
+            setTimeout(() => {
+                emailStatus.style.display = 'none';
+            }, 3000);
+        }
+        
+        function testEmailNotification() {
+            const email = document.getElementById('adminEmail').value.trim();
+            const emailStatus = document.getElementById('emailStatus');
+            
+            if (!email || !isValidEmail(email)) {
+                emailStatus.textContent = 'Shyiramo email nterinze!';
+                emailStatus.className = 'email-status error';
+                emailStatus.style.display = 'block';
+                return;
+            }
+            
+            emailStatus.textContent = 'Email yoherejwe! (Test)';
+            emailStatus.className = 'email-status success';
+            emailStatus.style.display = 'block';
+            
+            // Simulate sending email
+            setTimeout(() => {
+                emailStatus.textContent = 'Email yoherejwe kuri ' + email;
+                setTimeout(() => {
+                    emailStatus.style.display = 'none';
+                }, 3000);
+            }, 1000);
+        }
+        
+        function saveNotificationSettings() {
+            const settings = {
+                enableNotifications: document.getElementById('enableNotifications').checked,
+                notifyAllDownloads: document.getElementById('notifyAllDownloads').checked,
+                notifyPopularSongs: document.getElementById('notifyPopularSongs').checked,
+                notificationFrequency: document.getElementById('notificationFrequency').value,
+                email: document.getElementById('adminEmail').value.trim(),
+                lastUpdated: new Date().toISOString()
+            };
+            
+            localStorage.setItem('notificationSettings', JSON.stringify(settings));
+            
+            showNotification('Igenamiterere ryabikijwe neza!');
+        }
+        
+        function updateNotificationStats() {
+            const songs = JSON.parse(localStorage.getItem('catholicSongs') || '[]');
+            const totalDownloads = songs.reduce((sum, song) => sum + (song.downloadCount || 0), 0);
+            
+            // Calculate last 24h downloads (simulated)
+            const last24hDownloads = Math.floor(totalDownloads * 0.1); // 10% of total
+            
+            document.getElementById('totalDownloads').textContent = totalDownloads;
+            document.getElementById('last24hDownloads').textContent = last24hDownloads;
+            
+            // Get last email sent
+            const settings = JSON.parse(localStorage.getItem('notificationSettings') || '{}');
+            if (settings.lastUpdated) {
+                const lastDate = new Date(settings.lastUpdated);
+                document.getElementById('lastEmailSent').textContent = lastDate.toLocaleDateString('rw-RW');
+            }
+            
+            // Calculate emails sent (simulated)
+            const emailsSent = Math.floor(totalDownloads * 0.5); // 50% of downloads
+            document.getElementById('emailsSent').textContent = emailsSent;
+        }
+        
+        function sendAdminNotification(type, data) {
+            const settings = JSON.parse(localStorage.getItem('notificationSettings') || '{}');
+            
+            if (!settings.email || !settings.enableNotifications) {
+                return;
+            }
+            
+            let subject = '';
+            let message = '';
+            const lang = localStorage.getItem('app_language') || 'rw';
+            
+            if (type === 'download') {
+                const user = data.user || 'Guest';
+                const song = data.song;
+                
+                if (lang === 'rw') {
+                    subject = '📥 User yamanye indirimbo';
+                    message = `${user} yamanye "${song.title}" muri ${song.section}. Downloads zose: ${song.downloadCount}`;
+                } else if (lang === 'en') {
+                    subject = '📥 User Downloaded Song';
+                    message = `${user} downloaded "${song.title}" in ${song.section}. Total downloads: ${song.downloadCount}`;
+                } else if (lang === 'fr') {
+                    subject = '📥 Utilisateur a Téléchargé';
+                    message = `${user} a téléchargé "${song.title}" dans ${song.section}. Téléchargements totaux: ${song.downloadCount}`;
+                } else if (lang === 'sw') {
+                    subject = '📥 Mtumiaji amepakua wimbo';
+                    message = `${user} amepakua "${song.title}" katika ${song.section}. Upakuaji wa jumla: ${song.downloadCount}`;
+                }
+                
+                console.log(`📧 Email to ${settings.email}: ${subject} - ${message}`);
+            }
+        }
+        
+        function isValidEmail(email) {
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            return emailRegex.test(email);
+        }
+        
+        // ===== UTILITY FUNCTIONS =====
+        function isValidFile(file) {
+            const validExtensions = ['.pdf', '.jpg', '.jpeg', '.png', '.gif', '.mp3'];
+            const fileExtension = '.' + file.name.split('.').pop().toLowerCase();
+            return validExtensions.includes(fileExtension);
+        }
+        
+        function getFileType(file) {
+            if (file.type.includes('pdf')) return 'PDF';
+            if (file.type.includes('jpeg') || file.type.includes('jpg')) return 'JPG';
+            if (file.type.includes('png')) return 'PNG';
+            if (file.type.includes('gif')) return 'GIF';
+            if (file.type.includes('audio')) return 'MP3';
+            return file.name.split('.').pop().toUpperCase();
+        }
+        
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+        
+        function showStatusMessage(message, type) {
+            const statusElement = document.getElementById('uploadStatusMessage');
+            statusElement.textContent = message;
+            statusElement.className = `status-message ${type}`;
+            
+            setTimeout(() => {
+                statusElement.textContent = '';
+                statusElement.className = 'status-message';
+            }, 5000);
+        }
+        
+        function showNotification(message) {
+            const notification = document.getElementById('notification');
+            if (!notification) {
+                // Create notification element if it doesn't exist
+                const newNotification = document.createElement('div');
+                newNotification.id = 'notification';
+                newNotification.style.cssText = `
+                    position: fixed;
+                    top: 20px;
+                    right: 20px;
+                    background: #4b0082;
+                    color: white;
+                    padding: 15px 25px;
+                    border-radius: 8px;
+                    z-index: 10000;
+                    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+                    animation: slideIn 0.3s ease;
+                `;
+                document.body.appendChild(newNotification);
+                notification = newNotification;
+            }
+            
+            notification.textContent = message;
+            notification.style.display = 'block';
+            
+            setTimeout(() => {
+                notification.style.display = 'none';
+            }, 3000);
+        }
+        
+        function saveUploadLog(song) {
+            const logs = JSON.parse(localStorage.getItem('uploadLogs') || '[]');
+            logs.unshift({
+                time: new Date().toLocaleString('rw-RW'),
+                title: song.title,
+                section: song.section,
+                fileType: song.fileType,
+                fileSize: song.fileSize,
+                admin: song.uploadedBy || 'admin',
+                action: 'uploaded'
+            });
+            
+            // Keep only last 50 logs
+            if (logs.length > 50) {
+                logs.length = 50;
+            }
+            
+            localStorage.setItem('uploadLogs', JSON.stringify(logs));
+            updateUploadLogDisplay();
+        }
+        
+        function addToDeleteLog(song) {
+            const logs = JSON.parse(localStorage.getItem('uploadLogs') || '[]');
+            logs.unshift({
+                time: new Date().toLocaleString('rw-RW'),
+                title: song.title,
+                section: song.section,
+                admin: song.uploadedBy || 'admin',
+                action: 'deleted'
+            });
+            
+            if (logs.length > 50) {
+                logs.length = 50;
+            }
+            
+            localStorage.setItem('uploadLogs', JSON.stringify(logs));
+            updateUploadLogDisplay();
+        }
+        
+        function updateUploadLogDisplay() {
+            const logs = JSON.parse(localStorage.getItem('uploadLogs') || '[]');
+            const logContainer = document.getElementById('uploadLog');
+            
+            if (logs.length === 0) {
+                logContainer.innerHTML = `<p style="text-align: center; color: #666;">${LanguageManager.getTranslation('no_logs')}</p>`;
+                return;
+            }
+            
+            let logHTML = '';
+            logs.forEach(log => {
+                const bgColor = log.action === 'uploaded' ? '#d4edda' : '#f8d7da';
+                const borderColor = log.action === 'uploaded' ? '#28a745' : '#dc3545';
+                const icon = log.action === 'uploaded' ? '📤' : '🗑️';
+                
+                logHTML += `
+                    <div style="padding: 8px; margin: 5px 0; background: ${bgColor}; border-radius: 5px; border-left: 3px solid ${borderColor};">
+                        <div style="display: flex; justify-content: space-between;">
+                            <strong>${icon} ${log.title}</strong>
+                            <span style="font-size: 12px; color: #666;">${log.time}</span>
+                        </div>
+                        <div style="font-size: 12px; color: #666;">
+                            ${log.section} • ${log.fileType || ''} • ${log.fileSize || ''} • by ${log.admin}
+                        </div>
+                    </div>
+                `;
+            });
+            
+            logContainer.innerHTML = logHTML;
+        }
+        
+        function resetUploadForm() {
+            document.getElementById('uploadFile').value = '';
+            document.getElementById('uploadSection').value = '';
+            document.getElementById('filesPreview').classList.remove('show');
+            document.getElementById('filesPreview').innerHTML = '';
+            document.getElementById('uploadSuccess').classList.remove('show');
+            document.getElementById('batchUploadSuccess').classList.remove('show');
+            document.getElementById('progressContainer').classList.remove('show');
+            document.getElementById('batchProgressContainer').classList.remove('show');
+            document.getElementById('uploadStatusMessage').textContent = '';
+            document.getElementById('cancelUploadButton').style.display = 'none';
+            
+            const uploadButton = document.getElementById('uploadButton');
+            uploadButton.disabled = true;
+            
+            // Reset to single mode
+            selectUploadMode('single');
+        }
+        
+        // ===== DASHBOARD FUNCTIONS =====
+        function refreshDashboard() {
+            loadSongs();
+            updateStatus();
+            updateNotificationStats();
+            showNotification('ISUBIYE KUMURONGO!');
+        }
+        
+        function logout() {
+            localStorage.removeItem('isAdmin');
+            localStorage.removeItem('adminUser');
+            showNotification('Wasohotse neza!');
+            setTimeout(() => {
+                window.location.href = "admin.html";
+            }, 1500);
+        }
+        
+        function checkUserView() {
+            window.open("index.html", "_blank");
+        }
+        
+        function testUserView() {
+            window.open("index.html", "_blank");
+            showNotification('UBU UGIYE KURI PAGE NYAMUKURU!');
+        }
+        
+        // ===== TAB FUNCTION =====
+        function showTab(tabName) {
+            // Hide all tabs
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Remove active class from all buttons
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            // Show selected tab
+            document.getElementById(tabName + 'Tab').classList.add('active');
+            
+            // Activate button
+            event.target.classList.add('active');
+            
+            // Load data for tab
+            if (tabName === 'manage') {
+                loadSongs();
+            } else if (tabName === 'status') {
+                updateStatus();
+                updateUploadLogDisplay();
+            } else if (tabName === 'notifications') {
+                updateNotificationStats();
+            }
+        }
+        
+        // ===== INITIALIZE =====
+        window.onload = function() {
+            if (localStorage.getItem('isAdmin') === 'true') {
+                initDashboard();
+            } else {
+                window.location.href = "admin.html";
+            }
+        };
+    </script>
+</body>
+</html>

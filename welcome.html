@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="rw">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title data-translate="welcome_title">Murakaza neza</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #4b0082, #6a5acd);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            color: white;
+            text-align: center;
+        }
+        
+        .welcome-container {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 40px 30px;
+            width: 100%;
+            max-width: 500px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            animation: fadeIn 0.8s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .welcome-icon {
+            font-size: 80px;
+            margin-bottom: 20px;
+            animation: bounce 2s infinite;
+        }
+        
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+        
+        h1 {
+            color: #4b0082;
+            margin-bottom: 15px;
+            font-size: 2.2em;
+        }
+        
+        .welcome-message {
+            color: #555;
+            margin-bottom: 25px;
+            font-size: 16px;
+            line-height: 1.6;
+        }
+        
+        .user-info {
+            background: #e8f4fd;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 25px;
+            border-left: 4px solid #4b0082;
+        }
+        
+        .user-email {
+            font-weight: bold;
+            color: #4b0082;
+            margin-bottom: 5px;
+        }
+        
+        .user-stats {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 10px;
+        }
+        
+        .stat {
+            text-align: center;
+        }
+        
+        .stat-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #4b0082;
+        }
+        
+        .stat-label {
+            font-size: 12px;
+            color: #666;
+        }
+        
+        .welcome-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .welcome-btn {
+            padding: 18px;
+            border: none;
+            border-radius: 10px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+        }
+        
+        .start-btn {
+            background: linear-gradient(135deg, #4b0082, #6a5acd);
+            color: white;
+        }
+        
+        .admin-btn {
+            background: linear-gradient(135deg, #28a745, #20c997);
+            color: white;
+        }
+        
+        .logout-btn {
+            background: linear-gradient(135deg, #dc3545, #e35d6a);
+            color: white;
+        }
+        
+        .welcome-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        
+        .features {
+            margin-top: 30px;
+            text-align: left;
+        }
+        
+        .features h3 {
+            color: #4b0082;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        
+        .feature-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 12px 0;
+            color: #555;
+        }
+        
+        .feature-icon {
+            font-size: 24px;
+            color: #4b0082;
+        }
+        
+        /* Language Switcher */
+        .language-switcher {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+        }
+        
+        .lang-btn {
+            background: rgba(255, 255, 255, 0.9);
+            border: 2px solid #4b0082;
+            border-radius: 25px;
+            padding: 8px 15px;
+            color: #4b0082;
+            cursor: pointer;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        @media (max-width: 480px) {
+            .welcome-container {
+                padding: 30px 20px;
+            }
+            
+            h1 {
+                font-size: 1.8em;
+            }
+            
+            .welcome-icon {
+                font-size: 60px;
+            }
+            
+            .welcome-btn {
+                padding: 15px;
+                font-size: 16px;
+            }
+            
+            .language-switcher {
+                top: 10px;
+                right: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Language Switcher -->
+    <div class="language-switcher">
+        <button class="lang-btn" onclick="changeLanguage('rw')">🇷🇼 Kinyarwanda</button>
+    </div>
+    
+    <div class="welcome-container">
+        <div class="welcome-icon">🎵</div>
+        <h1 id="welcomeTitle">Murakaza neza!</h1>
+        
+        <div class="welcome-message" id="welcomeMessage">
+            Urakiriye kuri App y'Indirimbo za Gatolika. Ubu ushobora gushaka indirimbo, kubona amakuru n'ibindi.
+        </div>
+        
+        <div class="user-info" id="userInfo">
+            <div class="user-email" id="userEmail">Email: user@example.com</div>
+            <div class="user-stats">
+                <div class="stat">
+                    <div class="stat-value" id="statDownloads">0</div>
+                    <div class="stat-label">Downloads</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-value" id="statViews">0</div>
+                    <div class="stat-label">Views</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-value" id="statSongs">0</div>
+                    <div class="stat-label">Indirimbo</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="features">
+            <h3 id="featuresTitle">Ibyiza by'App:</h3>
+            <div class="feature-item">
+                <span class="feature-icon">🔍</span>
+                <span id="feature1">Shaka indirimbo ukurikije izina cyangwa igice cya missa</span>
+            </div>
+            <div class="feature-item">
+                <span class="feature-icon">⬇️</span>
+                <span id="feature2">Pakura indirimbo (MP3, PDF, Images)</span>
+            </div>
+            <div class="feature-item">
+                <span class="feature-icon">🔔</span>
+                <span id="feature3">Bona notifications iyo hari indirimbo nshya</span>
+            </div>
+            <div class="feature-item">
+                <span class="feature-icon">📱</span>
+                <span id="feature4">Gukoresha offline (nta internet)</span>
+            </div>
+        </div>
+        
+        <div class="welcome-buttons">
+            <button class="welcome-btn start-btn" onclick="goToSongs()">
+                <span>🚀</span>
+                <span id="startButton">Tangira Gushaka Indirimbo</span>
+            </button>
+            
+            <button class="welcome-btn admin-btn" onclick="goToAdmin()">
+                <span>🔑</span>
+                <span id="adminButton">Admin Dashboard</span>
+            </button>
+            
+            <button class="welcome-btn logout-btn" onclick="logout()">
+                <span>🚪</span>
+                <span id="logoutButton">Sohoka</span>
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // Translations for welcome page
+        const welcomeTranslations = {
+            'rw': {
+                'welcome_title': 'Murakaza neza',
+                'welcome_message': 'Urakiriye kuri App y\'Indirimbo za Gatolika. Ubu ushobora gushaka indirimbo, kubona amakuru n\'ibindi.',
+                'features_title': 'Ibyiza by\'App:',
+                'feature1': 'Shaka indirimbo ukurikije izina cyangwa igice cya missa',
+                'feature2': 'Pakura indirimbo (MP3, PDF, Images)',
+                'feature3': 'Bona notifications iyo hari indirimbo nshya',
+                'feature4': 'Gukoresha offline (nta internet)',
+                'start_button': 'Tangira Gushaka Indirimbo',
+                'admin_button': 'Admin Dashboard',
+                'logout_button': 'Sohoka',
+                'downloads_label': 'Downloads',
+                'views_label': 'Views',
+                'songs_label': 'Indirimbo'
+            },
+            'en': {
+                'welcome_title': 'Welcome',
+                'welcome_message': 'Welcome to Catholic Songs App. Now you can search songs, get information and more.',
+                'features_title': 'App Features:',
+                'feature1': 'Search songs by name or mass section',
+                'feature2': 'Download songs (MP3, PDF, Images)',
+                'feature3': 'Get notifications when new songs',
+                'feature4': 'Use offline (no internet)',
+                'start_button': 'Start Searching Songs',
+                'admin_button': 'Admin Dashboard',
+                'logout_button': 'Logout',
+                'downloads_label': 'Downloads',
+                'views_label': 'Views',
+                'songs_label': 'Songs'
+            },
+            'fr': {
+                'welcome_title': 'Bienvenue',
+                'welcome_message': 'Bienvenue à l\'application Chants Catholiques. Maintenant vous pouvez rechercher des chants, obtenir des informations et plus.',
+                'features_title': 'Fonctionnalités:',
+                'feature1': 'Rechercher chants par nom ou section de messe',
+                'feature2': 'Télécharger chants (MP3, PDF, Images)',
+                'feature3': 'Recevoir notifications nouveaux chants',
+                'feature4': 'Utiliser hors ligne (sans internet)',
+                'start_button': 'Commencer Recherche',
+                'admin_button': 'Tableau de Bord Admin',
+                'logout_button': 'Déconnexion',
+                'downloads_label': 'Téléchargements',
+                'views_label': 'Vues',
+                'songs_label': 'Chants'
+            },
+            'sw': {
+                'welcome_title': 'Karibu',
+                'welcome_message': 'Karibu kwenye App ya Nyimbo za Kikatoriki. Sasa unaweza kutafuta nyimbo, kupata habari na zaidi.',
+                'features_title': 'Vipengele vya App:',
+                'feature1': 'Tafuta nyimbo kwa jina au sehemu ya misa',
+                'feature2': 'Pakua nyimbo (MP3, PDF, Images)',
+                'feature3': 'Pata arifa wakati kuna nyimbo mpya',
+                'feature4': 'Tumia offline (bila mtandao)',
+                'start_button': 'Anza Kutafuta Nyimbo',
+                'admin_button': 'Dashibodi ya Admin',
+                'logout_button': 'Toka',
+                'downloads_label': 'Upakuaji',
+                'views_label': 'Matazamio',
+                'songs_label': 'Nyimbo'
+            }
+        };
+        
+        function changeLanguage(lang) {
+            localStorage.setItem('app_language', lang);
+            applyWelcomeLanguage(lang);
+            
+            // Update language button
+            const langBtn = document.querySelector('.lang-btn');
+            const flags = { 'rw': '🇷🇼', 'en': '🇬🇧', 'fr': '🇫🇷', 'sw': '🇹🇿' };
+            const names = { 'rw': 'Kinyarwanda', 'en': 'English', 'fr': 'Français', 'sw': 'Swahili' };
+            
+            langBtn.innerHTML = `${flags[lang]} ${names[lang]}`;
+            langBtn.onclick = function() {
+                // Cycle through languages
+                const languages = ['rw', 'en', 'fr', 'sw'];
+                const currentIndex = languages.indexOf(lang);
+                const nextIndex = (currentIndex + 1) % languages.length;
+                changeLanguage(languages[nextIndex]);
+            };
+        }
+        
+        function applyWelcomeLanguage(lang) {
+            const trans = welcomeTranslations[lang];
+            
+            document.getElementById('welcomeTitle').textContent = trans.welcome_title;
+            document.getElementById('welcomeMessage').textContent = trans.welcome_message;
+            document.getElementById('featuresTitle').textContent = trans.features_title;
+            document.getElementById('feature1').textContent = trans.feature1;
+            document.getElementById('feature2').textContent = trans.feature2;
+            document.getElementById('feature3').textContent = trans.feature3;
+            document.getElementById('feature4').textContent = trans.feature4;
+            document.getElementById('startButton').textContent = trans.start_button;
+            document.getElementById('adminButton').textContent = trans.admin_button;
+            document.getElementById('logoutButton').textContent = trans.logout_button;
+            document.querySelectorAll('.stat-label')[0].textContent = trans.downloads_label;
+            document.querySelectorAll('.stat-label')[1].textContent = trans.views_label;
+            document.querySelectorAll('.stat-label')[2].textContent = trans.songs_label;
+        }
+        
+        // Load user data
+        function loadUserData() {
+            const userData = localStorage.getItem('currentUser');
+            if (!userData) {
+                window.location.href = 'index.html';
+                return;
+            }
+            
+            const user = JSON.parse(userData);
+            const songs = JSON.parse(localStorage.getItem('catholicSongs') || '[]');
+            
+            // Set user info
+            document.getElementById('userEmail').textContent = `Email: ${user.email}`;
+            document.getElementById('statDownloads').textContent = user.stats?.downloads || 0;
+            document.getElementById('statViews').textContent = user.stats?.views || 0;
+            document.getElementById('statSongs').textContent = songs.length;
+            
+            // Mark welcome as visited
+            localStorage.setItem('welcome_visited', 'true');
+            
+            // Load language
+            const lang = localStorage.getItem('app_language') || 'rw';
+            changeLanguage(lang);
+        }
+        
+        function goToSongs() {
+            window.location.href = 'index.html';
+        }
+        
+        function goToAdmin() {
+            // Check if user is admin
+            if (localStorage.getItem('isAdmin') === 'true') {
+                window.location.href = 'admin-dashboard.html';
+            } else {
+                window.location.href = 'admin.html';
+            }
+        }
+        
+        function logout() {
+            localStorage.removeItem('currentUser');
+            window.location.href = 'index.html';
+        }
+        
+        // Initialize
+        window.onload = loadUserData;
+    </script>
+</body>
+</html>

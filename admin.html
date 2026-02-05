@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="rw">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin Login</title>
+    <style>
+        /* ===== LANGUAGE SWITCHER ===== */
+        .language-switcher-container {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+        }
+        
+        .language-dropdown {
+            position: relative;
+            display: inline-block;
+        }
+        
+        .language-current {
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px solid white;
+            border-radius: 25px;
+            padding: 8px 15px;
+            color: white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+        
+        .language-current:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
+        
+        .language-flag {
+            font-size: 18px;
+        }
+        
+        .language-name {
+            font-size: 12px;
+        }
+        
+        .language-arrow {
+            font-size: 10px;
+            margin-left: 5px;
+        }
+        
+        .language-options {
+            display: none;
+            position: absolute;
+            top: 100%;
+            right: 0;
+            background: white;
+            border-radius: 8px;
+            min-width: 150px;
+            margin-top: 5px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            z-index: 1001;
+            overflow: hidden;
+        }
+        
+        .language-options button {
+            width: 100%;
+            padding: 10px 15px;
+            border: none;
+            background: none;
+            text-align: left;
+            cursor: pointer;
+            color: #333;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 13px;
+            transition: all 0.2s;
+        }
+        
+        .language-options button:hover {
+            background: #f0f0f0;
+            color: #4b0082;
+        }
+        
+        .language-options button.active {
+            background: #e8f4fd;
+            color: #4b0082;
+            font-weight: bold;
+        }
+        
+        /* Language notification */
+        .language-notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #4b0082;
+            color: white;
+            padding: 15px 25px;
+            border-radius: 10px;
+            z-index: 10000;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            animation: slideIn 0.3s ease;
+        }
+        
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        
+        @keyframes slideOut {
+            from { transform: translateX(0); opacity: 1; }
+            to { transform: translateX(100%); opacity: 0; }
+        }
+        
+        /* ===== MAIN STYLES ===== */
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #4b0082, #6a5acd);
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .login-container {
+            background: white;
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+            position: relative;
+        }
+        
+        .login-container h2 {
+            color: #4b0082;
+            margin-bottom: 30px;
+            font-size: 28px;
+        }
+        
+        .login-container input {
+            width: 100%;
+            padding: 15px;
+            margin: 12px 0;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+        
+        .login-container input:focus {
+            border-color: #4b0082;
+            outline: none;
+        }
+        
+        .login-container button {
+            width: 100%;
+            padding: 15px;
+            margin: 20px 0 15px;
+            background: #4b0082;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .login-container button:hover {
+            background: #5a0d9c;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        
+        .login-container a {
+            color: #4b0082;
+            text-decoration: none;
+            font-weight: bold;
+            display: block;
+            margin-top: 20px;
+        }
+        
+        .login-container a:hover {
+            text-decoration: underline;
+        }
+        
+        .offline-notice {
+            background: #fff3cd;
+            color: #856404;
+            padding: 12px;
+            border-radius: 8px;
+            margin-top: 20px;
+            border-left: 4px solid #ffc107;
+            display: none;
+        }
+        
+        .offline-notice.show {
+            display: block;
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .language-switcher-container {
+                top: 15px;
+                right: 15px;
+            }
+            
+            .language-current {
+                padding: 6px 12px;
+            }
+            
+            .language-name {
+                display: none;
+            }
+            
+            .login-container {
+                padding: 30px 20px;
+                margin: 20px;
+            }
+            
+            .login-container h2 {
+                font-size: 24px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .language-switcher-container {
+                top: 10px;
+                right: 10px;
+            }
+            
+            .language-current {
+                padding: 5px 10px;
+                font-size: 12px;
+            }
+            
+            .login-container {
+                padding: 25px 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="language-switcher-container">
+        <div id="languageSwitcher"></div>
+    </div>
+    
+    <div class="login-container">
+        <h2 data-translate="admin_login">Injira nk'Admin</h2>
+        <form id="loginForm">
+            <input type="text" id="username" data-translate="username_placeholder" placeholder="Username" required>
+            <input type="password" id="password" data-translate="password_placeholder" placeholder="Password" required>
+            <button type="submit" data-translate="login">Injira</button>
+        </form>
+        <a href="index.html" data-translate="back_to_home">Subira kuri page nyamukuru</a>
+        
+        <div id="offlineNotice" class="offline-notice">
+            <strong data-translate="warning">⚠️ Icyitonderwa:</strong> <span data-translate="offline_warning">Ubu uri offline. Admin dashboard ishobora kutikora neza nta internet.</span>
+        </div>
+    </div>
+
+    <script>
+        // ===== LANGUAGE MANAGEMENT =====
+        const translations = {
+            'rw': {
+                'admin_login': 'Injira nk\'Admin',
+                'username_placeholder': 'Username',
+                'password_placeholder': 'Password',
+                'login': 'Injira',
+                'back_to_home': 'Subira kuri page nyamukuru',
+                'warning': '⚠️ Icyitonderwa:',
+                'offline_warning': 'Ubu uri offline. Admin dashboard ishobora kutikora neza nta internet.',
+                'login_success': 'Winjiye neza!',
+                'login_error': 'Username cyangwa password ntabwo ari yo!',
+                'offline_confirm': '⚠️ Ubu uri offline! Dashboard ishobora kutikora neza. Urashaka gukomeza?'
+            },
+            'en': {
+                'admin_login': 'Admin Login',
+                'username_placeholder': 'Username',
+                'password_placeholder': 'Password',
+                'login': 'Login',
+                'back_to_home': 'Back to Home Page',
+                'warning': '⚠️ Warning:',
+                'offline_warning': 'You are offline. Admin dashboard may not work properly without internet.',
+                'login_success': 'Login successful!',
+                'login_error': 'Username or password is incorrect!',
+                'offline_confirm': '⚠️ You are offline! Dashboard may not work properly. Do you want to continue?'
+            },
+            'fr': {
+                'admin_login': 'Connexion Admin',
+                'username_placeholder': 'Nom d\'utilisateur',
+                'password_placeholder': 'Mot de passe',
+                'login': 'Connexion',
+                'back_to_home': 'Retour à la page d\'accueil',
+                'warning': '⚠️ Attention:',
+                'offline_warning': 'Vous êtes hors ligne. Le tableau de bord admin peut ne pas fonctionner correctement sans internet.',
+                'login_success': 'Connexion réussie!',
+                'login_error': 'Nom d\'utilisateur ou mot de passe incorrect!',
+                'offline_confirm': '⚠️ Vous êtes hors ligne! Le tableau de bord peut ne pas fonctionner correctement. Voulez-vous continuer?'
+            },
+            'sw': {
+                'admin_login': 'Ingia kama Admin',
+                'username_placeholder': 'Jina la mtumiaji',
+                'password_placeholder': 'Nenosiri',
+                'login': 'Ingia',
+                'back_to_home': 'Rudi kwenye ukurasa wa nyumbani',
+                'warning': '⚠️ Onyo:',
+                'offline_warning': 'Uko offline. Dashibodi ya admin inaweza kutofanya kazi vizuri bila mtandao.',
+                'login_success': 'Umeingia kikamilifu!',
+                'login_error': 'Jina la mtumiaji au nenosiri sio sahihi!',
+                'offline_confirm': '⚠️ Uko offline! Dashibodi inaweza kutofanya kazi vizuri. Unataka kuendelea?'
+            }
+        };
+
+        const LanguageManager = {
+            currentLang: 'rw',
+            
+            init() {
+                this.currentLang = localStorage.getItem('app_language') || 'rw';
+                this.applyLanguage();
+                this.setupLanguageSwitcher();
+            },
+            
+            setLanguage(lang) {
+                if (translations[lang]) {
+                    this.currentLang = lang;
+                    localStorage.setItem('app_language', lang);
+                    this.applyLanguage();
+                    this.showLanguageChangeNotification(lang);
+                }
+            },
+            
+            applyLanguage() {
+                document.querySelectorAll('[data-translate]').forEach(element => {
+                    const key = element.getAttribute('data-translate');
+                    const translation = this.getTranslation(key);
+                    if (translation) {
+                        if (element.tagName === 'INPUT' || element.tagName === 'TEXTAREA') {
+                            element.placeholder = translation;
+                        } else {
+                            element.textContent = translation;
+                        }
+                    }
+                });
+                
+                this.updateLanguageSwitcherUI();
+            },
+            
+            getTranslation(key) {
+                return translations[this.currentLang]?.[key] || translations['rw'][key] || key;
+            },
+            
+            setupLanguageSwitcher() {
+                const switcher = document.getElementById('languageSwitcher');
+                if (switcher) {
+                    switcher.innerHTML = `
+                        <div class="language-dropdown">
+                            <button class="language-current">
+                                <span class="language-flag">${this.getFlag(this.currentLang)}</span>
+                                <span class="language-name">${this.getLanguageName(this.currentLang)}</span>
+                                <span class="language-arrow">▼</span>
+                            </button>
+                            <div class="language-options">
+                                <button onclick="LanguageManager.setLanguage('rw')" class="${this.currentLang === 'rw' ? 'active' : ''}">
+                                    <span class="language-flag">🇷🇼</span> Kinyarwanda
+                                </button>
+                                <button onclick="LanguageManager.setLanguage('en')" class="${this.currentLang === 'en' ? 'active' : ''}">
+                                    <span class="language-flag">🇬🇧</span> English
+                                </button>
+                                <button onclick="LanguageManager.setLanguage('fr')" class="${this.currentLang === 'fr' ? 'active' : ''}">
+                                    <span class="language-flag">🇫🇷</span> Français
+                                </button>
+                                <button onclick="LanguageManager.setLanguage('sw')" class="${this.currentLang === 'sw' ? 'active' : ''}">
+                                    <span class="language-flag">🇹🇿</span> Swahili
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                    
+                    switcher.querySelector('.language-current').addEventListener('click', function(e) {
+                        e.stopPropagation();
+                        const options = this.parentElement.querySelector('.language-options');
+                        options.style.display = options.style.display === 'block' ? 'none' : 'block';
+                    });
+                    
+                    document.addEventListener('click', function() {
+                        const options = document.querySelector('.language-options');
+                        if (options) options.style.display = 'none';
+                    });
+                }
+            },
+            
+            updateLanguageSwitcherUI() {
+                const currentBtn = document.querySelector('.language-current');
+                const options = document.querySelectorAll('.language-options button');
+                
+                if (currentBtn) {
+                    currentBtn.querySelector('.language-flag').textContent = this.getFlag(this.currentLang);
+                    currentBtn.querySelector('.language-name').textContent = this.getLanguageName(this.currentLang);
+                }
+                
+                options.forEach(btn => {
+                    const lang = btn.getAttribute('onclick').match(/'(\w+)'/)?.[1];
+                    btn.classList.toggle('active', lang === this.currentLang);
+                });
+            },
+            
+            getFlag(lang) {
+                const flags = { 'rw': '🇷🇼', 'en': '🇬🇧', 'fr': '🇫🇷', 'sw': '🇹🇿' };
+                return flags[lang] || '🌐';
+            },
+            
+            getLanguageName(lang) {
+                const names = { 'rw': 'Kinyarwanda', 'en': 'English', 'fr': 'Français', 'sw': 'Swahili' };
+                return names[lang] || lang;
+            },
+            
+            showLanguageChangeNotification(lang) {
+                const messages = {
+                    'rw': 'Ururimi rwahinduwe!',
+                    'en': 'Language changed!',
+                    'fr': 'Langue changée!',
+                    'sw': 'Lugha imebadilishwa!'
+                };
+                
+                const notification = document.createElement('div');
+                notification.className = 'language-notification';
+                notification.innerHTML = `
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <span style="font-size: 20px;">${this.getFlag(lang)}</span>
+                        <span>${messages[lang]}</span>
+                    </div>
+                `;
+                
+                notification.style.cssText = `
+                    position: fixed;
+                    top: 20px;
+                    right: 20px;
+                    background: #4b0082;
+                    color: white;
+                    padding: 15px 25px;
+                    border-radius: 10px;
+                    z-index: 10000;
+                    box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+                    animation: slideIn 0.3s ease;
+                `;
+                
+                document.body.appendChild(notification);
+                
+                setTimeout(() => {
+                    notification.style.animation = 'slideOut 0.3s ease';
+                    setTimeout(() => {
+                        if (notification.parentNode) {
+                            notification.parentNode.removeChild(notification);
+                        }
+                    }, 300);
+                }, 3000);
+            }
+        };
+
+        // ===== ADMIN LOGIN FUNCTIONS =====
+        function checkOnlineStatus() {
+            const notice = document.getElementById('offlineNotice');
+            if (!navigator.onLine) {
+                notice.classList.add('show');
+            } else {
+                notice.classList.remove('show');
+            }
+        }
+        
+        // Initial check
+        checkOnlineStatus();
+        
+        // Listen for online/offline events
+        window.addEventListener('online', checkOnlineStatus);
+        window.addEventListener('offline', checkOnlineStatus);
+        
+        // Admin credentials
+        const ADMIN_CREDENTIALS = {
+            username: "GASPARD",
+            password: "gcuvnjcggme"
+        };
+        
+        // Handle login
+        document.getElementById("loginForm").onsubmit = function(e) {
+            e.preventDefault();
+            
+            const username = document.getElementById("username").value.trim();
+            const password = document.getElementById("password").value.trim();
+            
+            if(username === ADMIN_CREDENTIALS.username && password === ADMIN_CREDENTIALS.password) {
+                // Save admin session
+                localStorage.setItem("isAdmin", "true");
+                localStorage.setItem("adminUser", username);
+                localStorage.setItem("lastLogin", new Date().toLocaleString('rw-RW'));
+                
+                // Check if offline
+                if (!navigator.onLine) {
+                    if (confirm(LanguageManager.getTranslation('offline_confirm'))) {
+                        window.location.href = "admin-dashboard.html";
+                    }
+                } else {
+                    alert(LanguageManager.getTranslation('login_success'));
+                    window.location.href = "admin-dashboard.html";
+                }
+            } else {
+                alert(LanguageManager.getTranslation('login_error'));
+                document.getElementById("password").value = "";
+            }
+        };
+        
+        // Focus on username field
+        document.getElementById("username").focus();
+        
+        // Initialize language manager
+        LanguageManager.init();
+    </script>
+</body>
+</html>
