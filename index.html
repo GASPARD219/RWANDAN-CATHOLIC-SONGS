@@ -19,7 +19,7 @@
             margin: 0;
             background: linear-gradient(135deg, #f5f5f5 0%, #e8e8e8 100%);
             min-height: 100vh;
-            padding-bottom: 80px; /* Space for fixed bottom buttons */
+            padding-bottom: 160px; /* Space for ALL fixed bottom buttons */
         }
         
         /* ===== LANGUAGE SWITCHER ===== */
@@ -445,7 +445,7 @@
             display: none;
             position: fixed;
             top: 20px;
-            left: 20px;
+            left: 60px;
             background: white;
             border-radius: 25px;
             padding: 10px 15px;
@@ -453,6 +453,7 @@
             z-index: 1000;
             align-items: center;
             gap: 10px;
+            max-width: 250px;
         }
         
         .user-profile.show {
@@ -501,6 +502,57 @@
             color: #666;
         }
         
+        /* ===== DOWNLOAD TRACKER ===== */
+        .download-tracker {
+            position: fixed;
+            bottom: 160px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.85);
+            color: white;
+            padding: 10px 15px;
+            border-radius: 8px;
+            z-index: 999;
+            font-size: 12px;
+            display: none;
+            animation: fadeInDown 0.3s ease;
+            border-left: 4px solid #4CAF50;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            max-width: 300px;
+        }
+        
+        .download-tracker.show {
+            display: block;
+        }
+        
+        .download-animation {
+            position: fixed;
+            z-index: 10000;
+            pointer-events: none;
+            animation: downloadFly 1s ease forwards;
+        }
+        
+        @keyframes downloadFly {
+            0% {
+                transform: scale(1) translate(0, 0);
+                opacity: 1;
+            }
+            100% {
+                transform: scale(0.5) translate(var(--endX), var(--endY));
+                opacity: 0;
+            }
+        }
+        
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
         /* ===== HEADER ===== */
         header {
             background: linear-gradient(135deg, #4b0082, #6a5acd);
@@ -508,6 +560,7 @@
             padding: 25px 20px;
             text-align: center;
             box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
         }
         
         header h1 {
@@ -526,39 +579,67 @@
             border-radius: 25px;
         }
         
-        /* ===== FIXED BOTTOM BUTTONS ===== */
-        .bottom-screen-buttons {
+        /* ===== ALL FIXED BOTTOM BUTTONS CONTAINER ===== */
+        .all-bottom-buttons {
             position: fixed;
             bottom: 0;
             left: 0;
             width: 100%;
+            z-index: 1000;
+        }
+        
+        /* UPPER ROW - App Buttons */
+        .app-buttons-row {
             background: linear-gradient(135deg, #4b0082, #6a5acd);
             padding: 15px;
             display: flex;
             gap: 15px;
             justify-content: center;
-            z-index: 1000;
-            box-shadow: 0 -4px 15px rgba(0,0,0,0.2);
-            border-top: 3px solid white;
+            border-bottom: 2px solid white;
         }
         
-        .bottom-screen-buttons button {
+        /* LOWER ROW - Twandikire & Admin Buttons (AT VERY BOTTOM) */
+        .admin-contact-row {
+            background: linear-gradient(135deg, #343a40, #495057);
+            padding: 12px 15px;
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            border-top: 2px solid rgba(255,255,255,0.1);
+        }
+        
+        .bottom-button {
             flex: 1;
             max-width: 300px;
-            padding: 15px 25px;
+            padding: 12px 20px;
             border: none;
             border-radius: 10px;
             cursor: pointer;
-            font-size: 16px;
+            font-size: 15px;
             font-weight: bold;
             transition: all 0.3s;
             display: flex;
             align-items: center;
             justify-content: center;
             gap: 10px;
-            min-height: 50px;
+            min-height: 45px;
+            white-space: nowrap;
         }
         
+        /* App Buttons */
+        .notification-btn-bottom {
+            background: #ffc107;
+            color: #856404;
+            box-shadow: 0 4px 8px rgba(255, 193, 7, 0.3);
+        }
+        
+        .search-btn-bottom {
+            background: #17a2b8;
+            color: white;
+            box-shadow: 0 4px 8px rgba(23, 162, 184, 0.3);
+        }
+        
+        /* Admin & Contact Buttons (Special Placement - VERY BOTTOM) */
         .admin-btn-bottom {
             background: #28a745;
             color: white;
@@ -566,20 +647,22 @@
         }
         
         .contact-btn-bottom {
-            background: #17a2b8;
+            background: #6f42c1;
             color: white;
-            box-shadow: 0 4px 8px rgba(23, 162, 184, 0.3);
+            box-shadow: 0 4px 8px rgba(111, 66, 193, 0.3);
         }
         
-        .notification-btn-bottom {
-            background: #ffc107;
-            color: #856404;
-            box-shadow: 0 4px 8px rgba(255, 193, 7, 0.3);
-        }
-        
-        .bottom-screen-buttons button:hover {
+        .bottom-button:hover {
             transform: translateY(-3px);
             box-shadow: 0 6px 12px rgba(0,0,0,0.3);
+        }
+        
+        .notification-btn-bottom:hover {
+            background: #e0a800;
+        }
+        
+        .search-btn-bottom:hover {
+            background: #138496;
         }
         
         .admin-btn-bottom:hover {
@@ -587,11 +670,7 @@
         }
         
         .contact-btn-bottom:hover {
-            background: #138496;
-        }
-        
-        .notification-btn-bottom:hover {
-            background: #e0a800;
+            background: #5a32a3;
         }
         
         /* ===== PWA BUTTON IN HEADER ===== */
@@ -753,6 +832,7 @@
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
             gap: 25px;
+            margin-bottom: 40px;
         }
         
         .song {
@@ -1094,6 +1174,10 @@
         
         /* ===== RESPONSIVE ===== */
         @media (max-width: 768px) {
+            body {
+                padding-bottom: 220px;
+            }
+            
             header h1 {
                 font-size: 1.8em;
             }
@@ -1168,24 +1252,43 @@
                 flex-direction: column;
             }
             
-            .bottom-screen-buttons {
+            .all-bottom-buttons {
                 flex-direction: column;
-                align-items: center;
-                padding: 12px;
             }
             
-            .bottom-screen-buttons button {
+            .app-buttons-row,
+            .admin-contact-row {
+                flex-direction: column;
+                align-items: center;
+                padding: 10px;
+            }
+            
+            .bottom-button {
                 width: 90%;
                 max-width: 90%;
                 margin-bottom: 8px;
+                min-height: 40px;
+                font-size: 14px;
             }
             
-            body {
-                padding-bottom: 140px;
+            .download-tracker {
+                bottom: 220px;
+                right: 10px;
+                left: 10px;
+                text-align: center;
+            }
+            
+            .user-profile {
+                left: 50px;
+                max-width: 200px;
             }
         }
         
         @media (max-width: 480px) {
+            body {
+                padding-bottom: 200px;
+            }
+            
             .language-switcher-container {
                 top: 10px;
                 right: 10px;
@@ -1204,14 +1307,15 @@
                 margin-left: auto;
             }
             
-            .bottom-screen-buttons button {
-                min-height: 45px;
-                font-size: 14px;
-                padding: 12px 20px;
+            .bottom-button {
+                min-height: 38px;
+                font-size: 13px;
+                padding: 10px 15px;
             }
             
-            body {
-                padding-bottom: 130px;
+            .download-tracker {
+                bottom: 200px;
+                font-size: 11px;
             }
         }
     </style>
@@ -1249,6 +1353,11 @@
             </div>
         </div>
         <button class="logout-btn" onclick="logoutUser()">🚪</button>
+    </div>
+
+    <!-- Download Tracker -->
+    <div id="downloadTracker" class="download-tracker">
+        <span id="trackerMessage"></span>
     </div>
 
     <!-- Header -->
@@ -1368,17 +1477,27 @@
             <!-- Songs will be displayed here -->
         </div>
 
-        <!-- Fixed Bottom Screen Buttons -->
-        <div class="bottom-screen-buttons">
-            <button class="admin-btn-bottom" onclick="window.location.href='admin.html'">
-                <span>🔑</span> <span data-translate="admin_login_user">Admin Login</span>
-            </button>
-            <button class="notification-btn-bottom" onclick="toggleNotificationPanel()">
-                <span>🔔</span> <span data-translate="notifications">Notifications</span>
-            </button>
-            <button class="contact-btn-bottom" onclick="showContactForm()">
-                <span>📧</span> <span data-translate="contact_us_user">Twandikire</span>
-            </button>
+        <!-- ALL FIXED BOTTOM BUTTONS -->
+        <div class="all-bottom-buttons">
+            <!-- UPPER ROW - App Functions -->
+            <div class="app-buttons-row">
+                <button class="bottom-button search-btn-bottom" onclick="focusSearch()">
+                    <span>🔍</span> <span data-translate="search">Shaka</span>
+                </button>
+                <button class="bottom-button notification-btn-bottom" onclick="toggleNotificationPanel()">
+                    <span>🔔</span> <span data-translate="notifications">Notifications</span>
+                </button>
+            </div>
+            
+            <!-- LOWER ROW - Twandikire & Admin (ALWAYS AT VERY BOTTOM) -->
+            <div class="admin-contact-row">
+                <button class="bottom-button admin-btn-bottom" onclick="window.location.href='admin.html'">
+                    <span>🔑</span> <span data-translate="admin_login_user">Admin Login</span>
+                </button>
+                <button class="bottom-button contact-btn-bottom" onclick="showContactForm()">
+                    <span>📧</span> <span data-translate="contact_us_user">Twandikire</span>
+                </button>
+            </div>
         </div>
     </div>
 
@@ -1466,6 +1585,218 @@
     </div>
 
     <script>
+        // ===== DOWNLOAD TRACKING SYSTEM =====
+        function showDownloadTracker(songTitle, newCount) {
+            const tracker = document.getElementById('downloadTracker');
+            const message = document.getElementById('trackerMessage');
+            
+            const messages = {
+                'rw': `📥 "${songTitle}" yamanutse! 🔢 ${newCount}`,
+                'en': `📥 "${songTitle}" downloaded! 🔢 ${newCount}`,
+                'fr': `📥 "${songTitle}" téléchargé! 🔢 ${newCount}`,
+                'sw': `📥 "${songTitle}" imepakiwa! 🔢 ${newCount}`
+            };
+            
+            const lang = localStorage.getItem('app_language') || 'rw';
+            message.textContent = messages[lang];
+            
+            tracker.classList.add('show');
+            
+            // Auto-hide after 3 seconds
+            setTimeout(() => {
+                tracker.classList.remove('show');
+            }, 3000);
+        }
+        
+        function createDownloadAnimation(startX, startY) {
+            const animation = document.createElement('div');
+            animation.className = 'download-animation';
+            animation.innerHTML = '⬇️';
+            animation.style.cssText = `
+                position: fixed;
+                left: ${startX}px;
+                top: ${startY}px;
+                font-size: 24px;
+                z-index: 10000;
+                pointer-events: none;
+            `;
+            
+            // Calculate end position (bottom right corner near tracker)
+            const endX = window.innerWidth - 50;
+            const endY = window.innerHeight - 120;
+            
+            animation.style.setProperty('--endX', `${endX - startX}px`);
+            animation.style.setProperty('--endY', `${endY - startY}px`);
+            
+            document.body.appendChild(animation);
+            
+            // Remove animation after it completes
+            setTimeout(() => {
+                if (animation.parentNode) {
+                    animation.parentNode.removeChild(animation);
+                }
+            }, 1000);
+        }
+        
+        // ===== ENHANCED DOWNLOAD FUNCTION =====
+        function downloadSong(songId) {
+            const song = allSongs.find(s => s.id === songId);
+            
+            if (!song) {
+                alert(`Ikosa: Indirimbo ntabwo iboneka!`);
+                loadSongs();
+                return;
+            }
+            
+            // Get button position for animation
+            const button = event.target.closest('.download-btn');
+            if (button) {
+                const rect = button.getBoundingClientRect();
+                const startX = rect.left + rect.width / 2;
+                const startY = rect.top + rect.height / 2;
+                
+                // Create download animation
+                createDownloadAnimation(startX, startY);
+            }
+            
+            // Update download count
+            song.downloadCount = (song.downloadCount || 0) + 1;
+            
+            // Update in localStorage
+            const songs = JSON.parse(localStorage.getItem('catholicSongs') || '[]');
+            const index = songs.findIndex(s => s.id === songId);
+            
+            if (index !== -1) {
+                songs[index] = song;
+                localStorage.setItem('catholicSongs', JSON.stringify(songs));
+                
+                // Update display immediately
+                const countElement = document.getElementById(`count-${songId}`);
+                if (countElement) {
+                    countElement.textContent = `🔽 ${song.downloadCount}`;
+                    // Add animation effect
+                    countElement.style.transform = 'scale(1.2)';
+                    countElement.style.color = '#4b0082';
+                    countElement.style.fontWeight = 'bold';
+                    
+                    setTimeout(() => {
+                        countElement.style.transform = 'scale(1)';
+                        countElement.style.color = '';
+                        countElement.style.fontWeight = '';
+                    }, 300);
+                }
+                
+                // Update user stats
+                updateUserStats('download');
+                
+                // Show download tracker
+                showDownloadTracker(song.title, song.downloadCount);
+                
+                // Send notification
+                showDownloadNotification(song);
+            }
+            
+            // Create download link
+            const link = document.createElement('a');
+            link.href = song.fileUrl;
+            link.download = song.title + (song.fileType === 'MP3' ? '.mp3' : 
+                          song.fileType === 'PDF' ? '.pdf' : 
+                          song.fileType === 'JPG' ? '.jpg' :
+                          song.fileType === 'PNG' ? '.png' : '.file');
+            link.style.display = 'none';
+            
+            // Add to document and trigger click
+            document.body.appendChild(link);
+            link.click();
+            
+            // Cleanup
+            setTimeout(() => {
+                if (link.parentNode) {
+                    link.parentNode.removeChild(link);
+                }
+                URL.revokeObjectURL(link.href);
+            }, 1000);
+            
+            // Log download for debugging
+            console.log(`📥 Download tracked: ${song.title} - Count: ${song.downloadCount}`);
+        }
+        
+        // ===== FOCUS SEARCH FUNCTION =====
+        function focusSearch() {
+            const searchInput = document.getElementById('searchInput');
+            if (searchInput) {
+                searchInput.focus();
+                searchInput.scrollIntoView({ behavior: 'smooth' });
+            }
+        }
+        
+        // ===== INITIALIZE TRACKER =====
+        function initDownloadTracker() {
+            // Check if tracker element exists
+            if (!document.getElementById('downloadTracker')) {
+                const tracker = document.createElement('div');
+                tracker.id = 'downloadTracker';
+                tracker.className = 'download-tracker';
+                tracker.innerHTML = '<span id="trackerMessage"></span>';
+                document.body.appendChild(tracker);
+            }
+        }
+        
+        // ===== MODIFIED INIT FUNCTION =====
+        function initApp() {
+            LanguageManager.init();
+            setupAuthForms();
+            
+            // Check if user is already logged in
+            checkUserSession();
+            
+            // Initialize download tracker
+            initDownloadTracker();
+            
+            registerServiceWorker();
+            setupInstallPrompt();
+            updateOnlineStatus();
+            setupContactForm();
+            
+            songUpdateInterval = setInterval(checkForSongUpdates, 10000);
+            window.addEventListener('focus', checkForSongUpdates);
+            
+            // Request notification permission after 3 seconds
+            setTimeout(() => {
+                checkNotificationPermission();
+            }, 3000);
+            
+            // Load user notifications
+            loadUserNotifications();
+        }
+        
+        // ===== MODIFIED USER STATS UPDATE =====
+        function updateUserStats(action) {
+            if (!currentUser) return;
+            
+            const users = JSON.parse(localStorage.getItem('users') || '[]');
+            const userIndex = users.findIndex(u => u.id === currentUser.id);
+            
+            if (userIndex !== -1) {
+                if (action === 'download') {
+                    currentUser.stats.downloads = (currentUser.stats.downloads || 0) + 1;
+                    console.log(`📊 User download stats updated: ${currentUser.email} - Downloads: ${currentUser.stats.downloads}`);
+                } else if (action === 'view') {
+                    currentUser.stats.views = (currentUser.stats.views || 0) + 1;
+                }
+                
+                currentUser.stats.lastActivity = new Date().toISOString();
+                users[userIndex] = currentUser;
+                localStorage.setItem('users', JSON.stringify(users));
+                localStorage.setItem('currentUser', JSON.stringify(currentUser));
+                
+                updateUserProfile();
+            }
+        }
+        
+        // ===== KEEP ALL YOUR EXISTING JAVASCRIPT CODE =====
+        // Add this after all your existing code but before window.onload
+        
         // ===== LANGUAGE MANAGEMENT =====
         const translations = {
             'rw': {
@@ -1926,29 +2257,7 @@
         let notificationCount = 0;
         
         // ===== INITIALIZATION =====
-        function initApp() {
-            LanguageManager.init();
-            setupAuthForms();
-            
-            // Check if user is already logged in
-            checkUserSession();
-            
-            registerServiceWorker();
-            setupInstallPrompt();
-            updateOnlineStatus();
-            setupContactForm();
-            
-            songUpdateInterval = setInterval(checkForSongUpdates, 10000);
-            window.addEventListener('focus', checkForSongUpdates);
-            
-            // Request notification permission after 3 seconds
-            setTimeout(() => {
-                checkNotificationPermission();
-            }, 3000);
-            
-            // Load user notifications
-            loadUserNotifications();
-        }
+        // Modified initApp function is already above
         
         // ===== NOTIFICATION SYSTEM =====
         function checkNotificationPermission() {
@@ -2500,27 +2809,7 @@
             document.getElementById('userViews').textContent = currentUser.stats?.views || 0;
         }
         
-        function updateUserStats(action) {
-            if (!currentUser) return;
-            
-            const users = JSON.parse(localStorage.getItem('users') || '[]');
-            const userIndex = users.findIndex(u => u.id === currentUser.id);
-            
-            if (userIndex !== -1) {
-                if (action === 'download') {
-                    currentUser.stats.downloads = (currentUser.stats.downloads || 0) + 1;
-                } else if (action === 'view') {
-                    currentUser.stats.views = (currentUser.stats.views || 0) + 1;
-                }
-                
-                currentUser.stats.lastActivity = new Date().toISOString();
-                users[userIndex] = currentUser;
-                localStorage.setItem('users', JSON.stringify(users));
-                localStorage.setItem('currentUser', JSON.stringify(currentUser));
-                
-                updateUserProfile();
-            }
-        }
+        // Modified updateUserStats is already above
         
         // ===== VALIDATION FUNCTIONS =====
         function validateSignupEmail() {
@@ -3205,51 +3494,7 @@
         }
         
         // ===== SONG ACTIONS =====
-        function downloadSong(songId) {
-            const song = allSongs.find(s => s.id === songId);
-            
-            if (!song) {
-                alert(`Ikosa: Indirimbo ntabwo iboneka!`);
-                loadSongs();
-                return;
-            }
-            
-            song.downloadCount = (song.downloadCount || 0) + 1;
-            
-            const songs = JSON.parse(localStorage.getItem('catholicSongs') || '[]');
-            const index = songs.findIndex(s => s.id === songId);
-            
-            if (index !== -1) {
-                songs[index] = song;
-                localStorage.setItem('catholicSongs', JSON.stringify(songs));
-                
-                const countElement = document.getElementById(`count-${songId}`);
-                if (countElement) {
-                    countElement.textContent = `🔽 ${song.downloadCount}`;
-                }
-                
-                updateUserStats('download');
-                
-                showDownloadNotification(song);
-                
-                setTimeout(() => {
-                    alert(`"${song.title}" yamanutse neza!\n🔢 Download count: ${song.downloadCount}`);
-                }, 500);
-            }
-            
-            const link = document.createElement('a');
-            link.href = song.fileUrl;
-            link.download = song.title + (song.fileType === 'MP3' ? '.mp3' : 
-                          song.fileType === 'PDF' ? '.pdf' : 
-                          song.fileType === 'JPG' ? '.jpg' :
-                          song.fileType === 'PNG' ? '.png' : '.file');
-            
-            link.click();
-            
-            setTimeout(() => {
-                URL.revokeObjectURL(link.href);
-            }, 1000);
-        }
+        // Modified downloadSong function is already above
         
         function previewSong(songId) {
             const song = allSongs.find(s => s.id === songId);
@@ -3280,7 +3525,7 @@
             }
         });
         
-        // Initialize app
+        // Initialize app - MODIFIED INIT FUNCTION IS ABOVE
         window.onload = initApp;
     </script>
 </body>
